@@ -13,7 +13,7 @@ module Api
       end
 
       def perform
-        scope = User.includes(user_roles: :role).order(:created_at)
+        scope = User.includes(:face_embeddings, user_roles: :role).order(:created_at)
 
         if query.present?
           pattern = "%#{query}%"

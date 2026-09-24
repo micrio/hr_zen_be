@@ -21,7 +21,12 @@ Rails.application.routes.draw do
         member do
           post :confirm
         end
+
+        resource :face, only: %i[show create destroy], controller: "face_embeddings"
       end
+
+      post "attendance/clock", to: "attendance#clock"
+      get "attendance/events", to: "attendance_events#index"
 
       resources :roles, only: %i[index show create update destroy]
       resources :record_types, only: %i[index show create update destroy]

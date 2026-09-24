@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000012) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -29,6 +29,33 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000012) do
     t.datetime "updated_at", null: false
     t.index ["organization_id"], name: "index_addresses_on_organization_id"
     t.index ["recordable_type", "recordable_id"], name: "index_addresses_on_recordable"
+  end
+
+  create_table "attendance_events", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.string "kind", null: false
+    t.datetime "occurred_at", null: false
+    t.float "distance"
+    t.string "source", default: "face"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "user_id", "occurred_at"], name: "idx_on_organization_id_user_id_occurred_at_172a839e0f"
+    t.index ["organization_id"], name: "index_attendance_events_on_organization_id"
+    t.index ["user_id"], name: "index_attendance_events_on_user_id"
+  end
+
+  create_table "face_embeddings", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.jsonb "vector", default: [], null: false
+    t.integer "dimension", default: 0, null: false
+    t.string "source", default: "camera"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "user_id"], name: "index_face_embeddings_on_organization_id_and_user_id"
+    t.index ["organization_id"], name: "index_face_embeddings_on_organization_id"
+    t.index ["user_id"], name: "index_face_embeddings_on_user_id"
   end
 
   create_table "organizations", force: :cascade do |t|
@@ -148,6 +175,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000012) do
   end
 
   add_foreign_key "addresses", "organizations"
+  add_foreign_key "attendance_events", "organizations"
+  add_foreign_key "attendance_events", "users"
+  add_foreign_key "face_embeddings", "organizations"
+  add_foreign_key "face_embeddings", "users"
   add_foreign_key "organizations", "users", column: "owner_id"
   add_foreign_key "permission_rules", "organizations"
   add_foreign_key "permission_rules", "record_types"

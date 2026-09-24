@@ -25,6 +25,10 @@ class UserPolicy < ApplicationPolicy
     superadmin?
   end
 
+  def manage_face?
+    superadmin? || own_record?
+  end
+
   class Scope < Scope
     def resolve
       superadmin? ? scope.all : scope.none
