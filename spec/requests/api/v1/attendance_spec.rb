@@ -99,6 +99,13 @@ RSpec.describe "Attendance", type: :request do
       expect(response_body["data"].first["kind"]).to eq("clock_in")
     end
 
+    it "returns all organization events for a superadmin" do
+      get "/api/v1/attendance/events", headers: auth_headers(superadmin), as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(response_body["data"].length).to eq(1)
+    end
+
     it "lets a superadmin filter by user" do
       get "/api/v1/attendance/events?user_id=#{employee.id}",
           headers: auth_headers(superadmin),
