@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000014) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,6 +67,48 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000014) do
     t.index ["organization_id", "user_id"], name: "index_face_embeddings_on_organization_id_and_user_id"
     t.index ["organization_id"], name: "index_face_embeddings_on_organization_id"
     t.index ["user_id"], name: "index_face_embeddings_on_user_id"
+  end
+
+  create_table "leave_applications", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "leave_type_id", null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.decimal "days", precision: 6, scale: 2, null: false
+    t.string "status", default: "pending", null: false
+    t.text "reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["leave_type_id"], name: "index_leave_applications_on_leave_type_id"
+    t.index ["organization_id", "user_id", "start_date"], name: "idx_on_organization_id_user_id_start_date_e1e9416be5"
+    t.index ["organization_id"], name: "index_leave_applications_on_organization_id"
+    t.index ["user_id"], name: "index_leave_applications_on_user_id"
+  end
+
+  create_table "leave_balances", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "leave_type_id", null: false
+    t.decimal "entitled_days", precision: 6, scale: 2, default: "0.0", null: false
+    t.decimal "used_days", precision: 6, scale: 2, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["leave_type_id"], name: "index_leave_balances_on_leave_type_id"
+    t.index ["organization_id", "user_id", "leave_type_id"], name: "idx_leave_balances_unique", unique: true
+    t.index ["organization_id"], name: "index_leave_balances_on_organization_id"
+    t.index ["user_id"], name: "index_leave_balances_on_user_id"
+  end
+
+  create_table "leave_types", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.string "name", null: false
+    t.decimal "default_days", precision: 6, scale: 2, default: "0.0", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "name"], name: "index_leave_types_on_organization_id_and_name", unique: true
+    t.index ["organization_id"], name: "index_leave_types_on_organization_id"
   end
 
   create_table "organizations", force: :cascade do |t|
@@ -191,6 +233,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000014) do
   add_foreign_key "attendance_settings", "organizations"
   add_foreign_key "face_embeddings", "organizations"
   add_foreign_key "face_embeddings", "users"
+  add_foreign_key "leave_applications", "leave_types"
+  add_foreign_key "leave_applications", "organizations"
+  add_foreign_key "leave_applications", "users"
+  add_foreign_key "leave_balances", "leave_types"
+  add_foreign_key "leave_balances", "organizations"
+  add_foreign_key "leave_balances", "users"
+  add_foreign_key "leave_types", "organizations"
   add_foreign_key "organizations", "users", column: "owner_id"
   add_foreign_key "permission_rules", "organizations"
   add_foreign_key "permission_rules", "record_types"

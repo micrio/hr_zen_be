@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :roles, through: :user_roles
   has_many :face_embeddings, dependent: :destroy
   has_many :attendance_events, dependent: :destroy
+  has_many :leave_balances, dependent: :destroy
+  has_many :leave_applications, dependent: :destroy
 
   before_create :generate_uuid
 
