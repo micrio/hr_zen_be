@@ -3,29 +3,24 @@
 module Api
   module V1
     class AttendanceController < BaseController
+      include AttendanceClockRendering
+
       # POST /api/v1/attendance/clock
       def clock
         authorize AttendanceEvent, :create?
 
-        result = Api::V1::ClockAttendanceService.new(
-          organization: current_user.organization,
-          embedding: clock_params[:embedding]
+        organization = current_user.organization
+        setting = Api::V1::FindAttendanceSettingService.new(
+          organization: organization
         ).perform
 
-        clocked_in = result[:event].kind == "clock_in"
+        result = Api::V1::ClockAttendanceService.new(
+          organization: organization,
+          embedding: clock_params[:embedding],
+          cooldown_seconds: setting.cooldown_seconds
+        ).perform
 
-        render_jsonapi(
-          {
-            event: Api::V1::AttendanceEventSerializer.new(result[:event]).serializable_hash,
-            user: Api::V1::UserSerializer.new(result[:user]).serializable_hash
-          },
-          status: :created,
-          meta: {
-            message: clocked_in ? "Clocked in." : "Clocked out.",
-            next_action: clocked_in ? "clock_out" : "clock_in",
-            distance: result[:distance].round(4)
-          }
-        )
+        render_clock(result)
       end
 
       private

@@ -18,6 +18,7 @@ RSpec.describe "Attendance", type: :request do
   before do
     ActsAsTenant.with_tenant(organization) do
       employee.face_embeddings.create!(vector: embedding)
+      AttendanceSetting.create!(organization: organization, cooldown_seconds: 0)
     end
   end
 
@@ -40,6 +41,28 @@ RSpec.describe "Attendance", type: :request do
 
       expect(response_body.dig("data", "event", "kind")).to eq("clock_out")
       expect(response_body.dig("meta", "next_action")).to eq("clock_in")
+    end
+
+    it "skips a repeat scan inside the cooldown window" do
+      ActsAsTenant.with_tenant(organization) do
+        AttendanceSetting.find_by!(organization: organization).update!(cooldown_seconds: 3600)
+      end
+
+      post "/api/v1/attendance/clock",
+           params: { attendance: { embedding: embedding } },
+           headers: auth_headers(superadmin),
+           as: :json
+
+      expect(response).to have_http_status(:created)
+
+      post "/api/v1/attendance/clock",
+           params: { attendance: { embedding: embedding } },
+           headers: auth_headers(superadmin),
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(response_body.dig("meta", "skipped")).to be true
+      expect(response_body.dig("meta", "cooldown_remaining")).to be > 0
     end
 
     it "rejects an unrecognized face" do

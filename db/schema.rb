@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000013) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000014) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -43,6 +43,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000013) do
     t.index ["organization_id", "user_id", "occurred_at"], name: "idx_on_organization_id_user_id_occurred_at_172a839e0f"
     t.index ["organization_id"], name: "index_attendance_events_on_organization_id"
     t.index ["user_id"], name: "index_attendance_events_on_user_id"
+  end
+
+  create_table "attendance_settings", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.boolean "enabled", default: false, null: false
+    t.string "clock_token", null: false
+    t.integer "cooldown_seconds", default: 60, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["clock_token"], name: "index_attendance_settings_on_clock_token", unique: true
+    t.index ["organization_id"], name: "index_attendance_settings_on_organization_id", unique: true
   end
 
   create_table "face_embeddings", force: :cascade do |t|
@@ -177,6 +188,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000013) do
   add_foreign_key "addresses", "organizations"
   add_foreign_key "attendance_events", "organizations"
   add_foreign_key "attendance_events", "users"
+  add_foreign_key "attendance_settings", "organizations"
   add_foreign_key "face_embeddings", "organizations"
   add_foreign_key "face_embeddings", "users"
   add_foreign_key "organizations", "users", column: "owner_id"

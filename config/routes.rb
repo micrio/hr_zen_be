@@ -27,6 +27,11 @@ Rails.application.routes.draw do
 
       post "attendance/clock", to: "attendance#clock"
       get "attendance/events", to: "attendance_events#index"
+      get "attendance/setting", to: "attendance_settings#show"
+      patch "attendance/setting", to: "attendance_settings#update"
+
+      get "kiosk/:token", to: "kiosk#show"
+      post "kiosk/:token/clock", to: "kiosk#clock"
 
       resources :roles, only: %i[index show create update destroy]
       resources :record_types, only: %i[index show create update destroy]
