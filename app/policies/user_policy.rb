@@ -21,6 +21,10 @@ class UserPolicy < ApplicationPolicy
     superadmin? && !own_record?
   end
 
+  def confirm?
+    superadmin?
+  end
+
   class Scope < Scope
     def resolve
       superadmin? ? scope.all : scope.none

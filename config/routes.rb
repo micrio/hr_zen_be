@@ -17,6 +17,10 @@ Rails.application.routes.draw do
         collection do
           get :me
         end
+
+        member do
+          post :confirm
+        end
       end
 
       resources :roles, only: %i[index show create update destroy]

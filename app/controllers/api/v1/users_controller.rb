@@ -3,7 +3,7 @@
 module Api
   module V1
     class UsersController < BaseController
-      before_action :set_user, only: %i[show update destroy]
+      before_action :set_user, only: %i[show update destroy confirm]
 
       # GET /api/v1/users/me
       def me
@@ -57,6 +57,18 @@ module Api
         render_jsonapi(
           Api::V1::UserSerializer.new(user).serializable_hash,
           meta: { message: "User updated successfully." }
+        )
+      end
+
+      # POST /api/v1/users/:id/confirm
+      def confirm
+        authorize @user
+
+        user = Api::V1::ConfirmUserService.new(user: @user).perform
+
+        render_jsonapi(
+          Api::V1::UserSerializer.new(user).serializable_hash,
+          meta: { message: "User confirmed successfully." }
         )
       end
 
