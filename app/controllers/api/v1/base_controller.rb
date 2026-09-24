@@ -11,6 +11,18 @@ module Api
       include JsonRenderer
       include RescueExceptions
       include Secured
+
+      around_action :with_current_tenant
+
+      private
+
+      # Scope every authenticated request to the user's organization.
+      def with_current_tenant(&block)
+        organization = current_user&.organization
+        return block.call unless organization
+
+        ActsAsTenant.with_tenant(organization, &block)
+      end
     end
   end
 end

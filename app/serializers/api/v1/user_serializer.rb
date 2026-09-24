@@ -4,7 +4,11 @@ module Api
   module V1
     class UserSerializer < ActiveModel::Serializer
       attributes :id, :uuid, :email, :first_name, :middle_name, :last_name,
-                 :full_name, :confirmed_at, :created_at
+                 :full_name, :confirmed_at, :created_at, :role_names
+
+      def role_names
+        object.roles.pluck(:name)
+      end
     end
   end
 end
