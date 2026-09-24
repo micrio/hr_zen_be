@@ -3,7 +3,7 @@
 module Api
   module V1
     class UpdateUserService
-      ATTRS = %i[email first_name middle_name last_name password password_confirmation].freeze
+      ATTRS = %i[email first_name middle_name last_name age gender password password_confirmation].freeze
 
       def initialize(args)
         @user = args[:user]

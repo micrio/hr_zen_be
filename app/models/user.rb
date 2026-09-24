@@ -14,6 +14,10 @@ class User < ApplicationRecord
   before_create :generate_uuid
 
   validates :first_name, :last_name, presence: true
+  validates :age,
+            numericality: { only_integer: true, greater_than: 0, less_than: 130 },
+            allow_nil: true
+  validates :gender, inclusion: { in: %w[male female other] }, allow_blank: true
 
   def full_name
     [ first_name, middle_name, last_name ].compact_blank.join(" ")

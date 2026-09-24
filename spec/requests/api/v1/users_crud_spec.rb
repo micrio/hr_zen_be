@@ -84,6 +84,28 @@ RSpec.describe "Users CRUD", type: :request do
       expect(response_body.dig("data", "role_names")).to eq([ "employee" ])
     end
 
+    it "stores age and gender" do
+      superadmin
+      params[:user][:age] = 30
+      params[:user][:gender] = "female"
+
+      post "/api/v1/users", params: params, headers: headers, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(response_body.dig("data", "age")).to eq(30)
+      expect(response_body.dig("data", "gender")).to eq("female")
+    end
+
+    it "rejects an out-of-range age" do
+      superadmin
+      params[:user][:age] = 999
+
+      post "/api/v1/users", params: params, headers: headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response_body["details"]).to have_key("age")
+    end
+
     it "rejects an invalid payload" do
       superadmin
       params[:user][:password_confirmation] = "mismatch"
