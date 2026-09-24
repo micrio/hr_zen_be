@@ -34,6 +34,7 @@ gem "solid_cable"
 # Config / tooling
 gem "dotenv-rails"
 gem "pghero"
+gem "pdf-reader", "~> 2.13"
 gem "rack-cors"
 
 group :development, :test do
