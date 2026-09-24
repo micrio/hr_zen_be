@@ -158,7 +158,6 @@ Devise.setup do |config|
   # db field (see migrations). Until confirmed, new email is stored in
   # unconfirmed_email column, and copied to email column on successful confirmation.
   config.reconfirmable = true
-
   # Defines which key will be used when confirming an account
   # config.confirmation_keys = [:email]
 
@@ -266,6 +265,9 @@ Devise.setup do |config|
   # API-only: never attempt HTML redirects on auth failure, return 401 instead.
   config.navigational_formats = []
 
+  # Interim: allow unconfirmed users to authenticate until the confirmation
+  # email flow is wired up. Set to 2.days (or 0) once mailers land.
+  config.allow_unconfirmed_access_for = nil
   # The default HTTP method used to sign out a resource. Default is :delete.
   config.sign_out_via = :delete
 
@@ -311,4 +313,12 @@ Devise.setup do |config|
   # When set to false, does not sign a user in automatically after their password is
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
+
+  # ==> JWT configuration (devise-jwt)
+  config.jwt do |jwt|
+    jwt.secret = ENV.fetch("DEVISE_JWT_SECRET_KEY") { Rails.application.secret_key_base }
+    jwt.expiration_time = 1.day.to_i
+    jwt.dispatch_requests = [ [ "POST", %r{^/api/v1/sign_in$} ] ]
+    jwt.revocation_requests = [ [ "DELETE", %r{^/api/v1/sign_out$} ] ]
+  end
 end

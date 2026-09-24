@@ -1,14 +1,70 @@
+# Values come from .env (auto-loaded by Compose for ${...} substitution).
+# The same file is mounted as an env_file so Rails' dotenv-rails sees it too.
 services:
   db:
     image: postgres:16.1
     container_name: hr_zen_be_postgres
     ports:
-      - 5433:5432
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+      POSTGRES_USER: ${POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
     volumes:
       - hr_zen_be_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: hr_zen_be:dev
+    container_name: hr_zen_be_app
+    command: bash -c "(bundle check || bundle install) && rm -f tmp/pids/server.pid && bin/rails db:prepare && bin/rails server -b 0.0.0.0"
+    ports:
+      - "${APP_PORT:-3001}:3000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    # `environment` wins over `env_file`, so DB_URL is rewritten to point at
+    # the `db` service instead of the host-mapped port from .env.
+    environment: &rails_env
+      RAILS_ENV: development
+      DB_URL: postgres://${POSTGRES_USER:-root}:${POSTGRES_PASSWORD:-root}@db:5432
+      RAILS_MAX_THREADS: ${RAILS_MAX_THREADS:-5}
+      BASE_URL: ${BASE_URL:-http://localhost:3001}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3100}
+      MAILER_SENDER: ${MAILER_SENDER:-no-reply@hrzen.test}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Background worker. This app uses Solid Queue (not Sidekiq), so the worker
+  # runs bin/jobs. It shares the app image and talks to the `queue` database.
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: hr_zen_be:dev
+    container_name: hr_zen_be_worker
+    command: bash -c "(bundle check || bundle install) && bin/jobs"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    environment:
+      <<: *rails_env
+      JOB_CONCURRENCY: ${JOB_CONCURRENCY:-1}
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
 
 volumes:
   hr_zen_be_pgdata:

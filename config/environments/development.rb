@@ -76,4 +76,7 @@ Rails.application.configure do
   # Run background jobs through Solid Queue backed by the dedicated queue database.
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
+
+  # Allow the web-console from the Docker host (192.168.65.1 etc.).
+  config.web_console.permissions = "0.0.0.0/0" if defined?(WebConsole)
 end
