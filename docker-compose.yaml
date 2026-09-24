@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16.1
+    container_name: hr_zen_be_postgres
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - hr_zen_be_pgdata:/var/lib/postgresql/data
+
+volumes:
+  hr_zen_be_pgdata:

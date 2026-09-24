@@ -1,0 +1,65 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  url: <%= ENV.fetch("DB_URL", "") %>
+
+development:
+  primary:
+    <<: *default
+    database: hr_zen_be_development
+  cache:
+    <<: *default
+    database: hr_zen_be_development_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: hr_zen_be_development_queue
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    database: hr_zen_be_development_cable
+    migrations_paths: db/cable_migrate
+
+test:
+  primary:
+    <<: *default
+    database: hr_zen_be_test
+  cache:
+    <<: *default
+    database: hr_zen_be_test_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: hr_zen_be_test_queue
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    database: hr_zen_be_test_cable
+    migrations_paths: db/cable_migrate
+
+production:
+  primary:
+    <<: *default
+    database: hr_zen_be_production
+    username: hr_zen_be
+    password: <%= ENV["HR_ZEN_BE_DATABASE_PASSWORD"] %>
+  cache:
+    <<: *default
+    database: hr_zen_be_production_cache
+    username: hr_zen_be
+    password: <%= ENV["HR_ZEN_BE_DATABASE_PASSWORD"] %>
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: hr_zen_be_production_queue
+    username: hr_zen_be
+    password: <%= ENV["HR_ZEN_BE_DATABASE_PASSWORD"] %>
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    database: hr_zen_be_production_cable
+    username: hr_zen_be
+    password: <%= ENV["HR_ZEN_BE_DATABASE_PASSWORD"] %>
+    migrations_paths: db/cable_migrate
