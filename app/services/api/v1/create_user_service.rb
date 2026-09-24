@@ -9,11 +9,13 @@ module Api
         @organization = args[:organization]
         @attributes = (args[:user] || {}).to_h.symbolize_keys.slice(*ATTRS)
         @role_names = normalize_roles(args[:role_names])
+        @custom_fields = args[:custom_fields]
       end
 
       def perform
         ActiveRecord::Base.transaction do
           user = build_user
+          user.custom_fields = normalized_custom_fields
           user.save!
           assign_roles(user)
           user
@@ -22,12 +24,20 @@ module Api
 
       private
 
-      attr_reader :organization, :attributes, :role_names
+      attr_reader :organization, :attributes, :role_names, :custom_fields
 
       def build_user
         User.new(attributes).tap do |user|
           user.organization = organization
           user.skip_confirmation_notification!
+        end
+      end
+
+      def normalized_custom_fields
+        return {} if custom_fields.blank?
+
+        ActsAsTenant.with_tenant(organization) do
+          Api::V1::UserCustomFields.validate!(custom_fields)
         end
       end
 

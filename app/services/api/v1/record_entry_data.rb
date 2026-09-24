@@ -8,10 +8,14 @@ module Api
       module_function
 
       def validate!(record_type, raw)
+        validate_fields!(record_type.field_definitions, raw)
+      end
+
+      def validate_fields!(field_definitions, raw)
         data = (raw || {}).to_h.stringify_keys
         errors = {}
 
-        record_type.field_definitions.each do |field|
+        field_definitions.each do |field|
           key = field["key"].to_s
           value = data[key]
 
@@ -31,7 +35,7 @@ module Api
           end
         end
 
-        (data.keys - record_type.field_keys).each do |key|
+        (data.keys - field_definitions.map { |field| field["key"].to_s }).each do |key|
           add_error(errors, key, "is not a defined field")
         end
 

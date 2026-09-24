@@ -92,18 +92,32 @@ module Api
       end
 
       def create_params
+        permitted = permitted_user_params
+
         {
           organization: current_user.organization,
-          user: params.require(:user).permit(*Api::V1::CreateUserService::ATTRS),
+          user: permitted.slice(*Api::V1::CreateUserService::ATTRS),
+          custom_fields: permitted[:custom_fields],
           role_names: params[:role_names]
         }
       end
 
       def update_params
+        permitted = permitted_user_params
+
         {
-          attributes: params.require(:user).permit(*Api::V1::UpdateUserService::ATTRS),
+          attributes: permitted.slice(*Api::V1::UpdateUserService::ATTRS),
+          custom_fields: permitted.key?(:custom_fields) ? permitted[:custom_fields] : nil,
           role_names: params.key?(:role_names) ? params[:role_names] : nil
         }
+      end
+
+      def permitted_user_params
+        params.require(:user).permit(
+          *Api::V1::CreateUserService::ATTRS,
+          *Api::V1::UpdateUserService::ATTRS,
+          custom_fields: {}
+        )
       end
 
       def pagination_meta(collection)
