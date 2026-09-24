@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000008) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -71,12 +71,25 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000008) do
     t.index ["role_id"], name: "index_permission_rules_on_role_id"
   end
 
+  create_table "record_entries", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "record_type_id", null: false
+    t.string "uuid", null: false
+    t.jsonb "data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "record_type_id"], name: "index_record_entries_on_organization_id_and_record_type_id"
+    t.index ["organization_id"], name: "index_record_entries_on_organization_id"
+    t.index ["record_type_id"], name: "index_record_entries_on_record_type_id"
+    t.index ["uuid"], name: "index_record_entries_on_uuid", unique: true
+  end
+
   create_table "record_types", force: :cascade do |t|
     t.bigint "organization_id", null: false
     t.string "name", null: false
-    t.jsonb "field_levels", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "fields", default: [], null: false
     t.index ["organization_id", "name"], name: "index_record_types_on_organization_id_and_name", unique: true
     t.index ["organization_id"], name: "index_record_types_on_organization_id"
   end
@@ -136,6 +149,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000008) do
   add_foreign_key "permission_rules", "organizations"
   add_foreign_key "permission_rules", "record_types"
   add_foreign_key "permission_rules", "roles"
+  add_foreign_key "record_entries", "organizations"
+  add_foreign_key "record_entries", "record_types"
   add_foreign_key "record_types", "organizations"
   add_foreign_key "roles", "organizations"
   add_foreign_key "user_roles", "organizations"

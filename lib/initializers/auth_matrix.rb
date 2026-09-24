@@ -5,16 +5,29 @@ module AuthMatrix
     # Blueprint of default entities and their sensitive attribute tiers.
     REGISTRY = {
       "User" => {
-        field_levels: { encrypted_password: 2, reset_password_token: 2 }
+        fields: [
+          { key: "encrypted_password", label: "Password", type: "text", level: 2, required: false },
+          { key: "reset_password_token", label: "Reset password token", type: "text", level: 2, required: false }
+        ]
       },
       "EmployeeProfile" => {
-        field_levels: { salary: 1, bank_account_number: 1, performance_notes: 2 }
+        fields: [
+          { key: "salary", label: "Salary", type: "number", level: 1, required: false },
+          { key: "bank_account_number", label: "Bank account number", type: "text", level: 1, required: false },
+          { key: "performance_notes", label: "Performance notes", type: "text", level: 2, required: false }
+        ]
       },
       "LeaveApplication" => {
-        field_levels: { status: 1, manager_comments: 1 }
+        fields: [
+          { key: "status", label: "Status", type: "text", level: 1, required: false },
+          { key: "manager_comments", label: "Manager comments", type: "text", level: 1, required: false }
+        ]
       },
       "SalarySlip" => {
-        field_levels: { net_pay: 0, status: 1 }
+        fields: [
+          { key: "net_pay", label: "Net pay", type: "number", level: 0, required: false },
+          { key: "status", label: "Status", type: "text", level: 1, required: false }
+        ]
       }
     }.freeze
 
@@ -45,7 +58,7 @@ module AuthMatrix
     def self.provision_record_types
       REGISTRY.to_h do |name, config|
         record_type = RecordType.find_or_initialize_by(name: name)
-        record_type.field_levels = config[:field_levels]
+        record_type.fields = config[:fields]
         record_type.save!
 
         [ name, record_type ]

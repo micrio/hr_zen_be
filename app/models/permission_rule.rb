@@ -1,6 +1,21 @@
 # frozen_string_literal: true
 
 class PermissionRule < ApplicationRecord
+  # Every boolean capability a rule can grant.
+  ACTIONS = %i[
+    can_read
+    can_write
+    can_create
+    can_delete
+    can_submit
+    can_cancel
+    can_amend
+    can_export
+    can_print
+    apply_user_permissions
+    can_set_user_permissions
+  ].freeze
+
   acts_as_tenant :organization
 
   belongs_to :role

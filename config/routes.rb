@@ -18,6 +18,11 @@ Rails.application.routes.draw do
           get :me
         end
       end
+
+      resources :roles, only: %i[index show create update destroy]
+      resources :record_types, only: %i[index show create update destroy]
+      resources :permission_rules, only: %i[index show create update destroy]
+      resources :record_entries, only: %i[index show create update destroy]
     end
   end
 end
