@@ -9,7 +9,7 @@ module Api
       def index
         authorize Organization
 
-        organizations = Organization.includes(:users).order(:created_at)
+        organizations = Organization.order(:created_at)
 
         render_jsonapi(
           organizations.map do |organization|

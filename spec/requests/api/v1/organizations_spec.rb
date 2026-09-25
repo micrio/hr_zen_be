@@ -31,6 +31,15 @@ RSpec.describe "Organizations (SaaS superadmin)", type: :request do
       expect(response_body["data"].first).to include("plan", "users_count", "subdomain", "features", "limits")
     end
 
+    it "counts users without the tenant scope leaking" do
+      ActsAsTenant.with_tenant(other_organization) { create_list(:user, 3) }
+
+      get "/api/v1/organizations", headers: auth_headers(platform_admin), as: :json
+
+      row = response_body["data"].find { |o| o["id"] == other_organization.id }
+      expect(row["users_count"]).to eq(3)
+    end
+
     it "forbids a regular org admin" do
       get "/api/v1/organizations", headers: auth_headers(org_admin), as: :json
 
@@ -64,6 +73,15 @@ RSpec.describe "Organizations (SaaS superadmin)", type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response_body["details"]).to have_key("plan")
+    end
+
+    it "counts users without the tenant scope leaking" do
+      ActsAsTenant.with_tenant(other_organization) { create_list(:user, 3) }
+
+      get "/api/v1/organizations", headers: auth_headers(platform_admin), as: :json
+
+      row = response_body["data"].find { |o| o["id"] == other_organization.id }
+      expect(row["users_count"]).to eq(3)
     end
 
     it "forbids a regular org admin" do

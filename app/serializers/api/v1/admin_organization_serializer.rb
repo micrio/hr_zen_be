@@ -10,7 +10,8 @@ module Api
       attribute :limits
 
       def users_count
-        object.users.size
+        # Bypass the tenant default scope: the platform admin counts *other* orgs.
+        ActsAsTenant.without_tenant { object.users.count }
       end
 
       def features
