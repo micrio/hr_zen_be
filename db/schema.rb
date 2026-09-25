@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000018) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000019) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -79,6 +79,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000018) do
     t.index ["organization_id", "user_id"], name: "index_face_embeddings_on_organization_id_and_user_id"
     t.index ["organization_id"], name: "index_face_embeddings_on_organization_id"
     t.index ["user_id"], name: "index_face_embeddings_on_user_id"
+  end
+
+  create_table "holidays", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.string "name", null: false
+    t.date "date", null: false
+    t.boolean "recurring", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "date"], name: "index_holidays_on_organization_id_and_date", unique: true
+    t.index ["organization_id"], name: "index_holidays_on_organization_id"
   end
 
   create_table "leave_applications", force: :cascade do |t|
@@ -291,6 +302,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000018) do
   add_foreign_key "compensations", "users"
   add_foreign_key "face_embeddings", "organizations"
   add_foreign_key "face_embeddings", "users"
+  add_foreign_key "holidays", "organizations"
   add_foreign_key "leave_applications", "leave_types"
   add_foreign_key "leave_applications", "organizations"
   add_foreign_key "leave_applications", "users"

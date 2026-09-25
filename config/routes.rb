@@ -40,6 +40,8 @@ Rails.application.routes.draw do
       resources :permission_rules, only: %i[index show create update destroy]
       resources :record_entries, only: %i[index show create update destroy]
 
+      resources :holidays, only: %i[index create update destroy]
+
       resources :leave_types, only: %i[index show create update destroy]
 
       resources :leave_balances, only: %i[index update] do
