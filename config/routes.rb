@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       get "activities", to: "activities#index"
       get "entitlements", to: "entitlements#show"
       get "plans", to: "plans#index"
+      get "reports/summary", to: "reports#summary"
 
       post "attendance/clock", to: "attendance#clock"
       get "attendance/events", to: "attendance_events#index"

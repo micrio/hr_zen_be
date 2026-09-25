@@ -53,11 +53,11 @@ class Organization < ApplicationRecord
     "free" => %w[users],
     "pro" => %w[
       users attendance leaves holidays payroll access_control records
-      performance activities
+      performance activities reports
     ],
     "enterprise" => %w[
       users attendance leaves holidays payroll access_control records
-      performance activities work
+      performance activities reports work
     ]
   }.freeze
 
