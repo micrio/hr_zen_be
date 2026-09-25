@@ -27,6 +27,7 @@ Rails.application.routes.draw do
 
       get "activities", to: "activities#index"
       get "entitlements", to: "entitlements#show"
+      resource :dashboard, only: %i[show update], controller: "dashboard"
       get "plans", to: "plans#index"
       get "reports/summary", to: "reports#summary"
       get "reports/:kind", to: "reports#show",
