@@ -3,6 +3,8 @@
 module Api
   module V1
     class ProjectsController < BaseController
+      plan_feature :work
+
       before_action :set_project, only: %i[update destroy]
 
       def index

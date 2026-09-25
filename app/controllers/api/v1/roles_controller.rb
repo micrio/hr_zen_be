@@ -3,6 +3,8 @@
 module Api
   module V1
     class RolesController < BaseController
+      plan_feature :access_control
+
       before_action :set_role, only: %i[show update destroy]
 
       # GET /api/v1/roles

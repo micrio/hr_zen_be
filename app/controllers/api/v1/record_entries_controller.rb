@@ -3,6 +3,8 @@
 module Api
   module V1
     class RecordEntriesController < BaseController
+      plan_feature :records
+
       before_action :set_record_entry, only: %i[show update destroy]
 
       # GET /api/v1/record_entries?record_type_id=

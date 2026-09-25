@@ -3,6 +3,8 @@
 module Api
   module V1
     class AttendanceSettingsController < BaseController
+      plan_feature :attendance
+
       # GET /api/v1/attendance/setting
       def show
         authorize :attendance_setting, :show?

@@ -3,6 +3,8 @@
 module Api
   module V1
     class ActivitiesController < BaseController
+      plan_feature :activities
+
       # GET /api/v1/activities?user_id=&item_type=&from=&to=
       def index
         authorize :activity, :index?, policy_class: ActivityPolicy

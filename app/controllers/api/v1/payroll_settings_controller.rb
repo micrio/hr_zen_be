@@ -3,6 +3,8 @@
 module Api
   module V1
     class PayrollSettingsController < BaseController
+      plan_feature :payroll
+
       # GET /api/v1/payroll/setting
       def show
         authorize :payroll_setting, :show?

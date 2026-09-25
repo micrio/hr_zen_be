@@ -3,6 +3,8 @@
 module Api
   module V1
     class FaceEmbeddingsController < BaseController
+      plan_feature :attendance
+
       before_action :set_user
 
       # GET /api/v1/users/:user_id/face

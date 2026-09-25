@@ -10,6 +10,7 @@ module Api
       include Pundit::Authorization
       include JsonRenderer
       include RescueExceptions
+      include PlanGated
       include Secured
 
       before_action :set_paper_trail_whodunnit

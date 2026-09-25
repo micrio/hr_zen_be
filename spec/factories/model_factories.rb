@@ -5,6 +5,7 @@ FactoryBot.define do
     name { Faker::Company.name }
     sequence(:subdomain) { |n| "acme#{n}" }
     email { Faker::Internet.email }
+    plan { "enterprise" }
     status { true }
   end
 

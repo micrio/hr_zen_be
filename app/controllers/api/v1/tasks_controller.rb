@@ -3,6 +3,8 @@
 module Api
   module V1
     class TasksController < BaseController
+      plan_feature :work
+
       before_action :set_task, only: %i[update destroy]
 
       def index

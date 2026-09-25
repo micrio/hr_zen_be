@@ -3,6 +3,8 @@
 module Api
   module V1
     class AttendanceEventsController < BaseController
+      plan_feature :attendance
+
       # GET /api/v1/attendance/events?user_id=&day=
       def index
         authorize AttendanceEvent

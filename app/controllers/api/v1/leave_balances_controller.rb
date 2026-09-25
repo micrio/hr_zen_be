@@ -3,6 +3,8 @@
 module Api
   module V1
     class LeaveBalancesController < BaseController
+      plan_feature :leaves
+
       before_action :set_balance, only: %i[update]
 
       # GET /api/v1/leave_balances?user_id=&leave_type_id=

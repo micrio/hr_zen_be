@@ -3,6 +3,8 @@
 module Api
   module V1
     class PayrollEntriesController < BaseController
+      plan_feature :payroll
+
       # GET /api/v1/payroll_entries?user_id=
       def index
         authorize PayrollEntry

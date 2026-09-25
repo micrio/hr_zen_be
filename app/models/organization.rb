@@ -5,7 +5,35 @@ class Organization < ApplicationRecord
   has_many :users, dependent: :destroy
   belongs_to :owner, class_name: "User", optional: true
 
+  def plan_allows?(feature)
+    (PLAN_FEATURES[plan] || []).include?(feature.to_s)
+  end
+
+  def user_limit
+    plan == "free" ? FREE_USER_LIMIT : nil
+  end
+
+  def user_limit_reached?
+    limit = user_limit
+    limit.present? && users.count >= limit
+  end
+
   PLAN_TYPES = %w[free pro enterprise].freeze
+
+  # Feature access per subscription tier.
+  PLAN_FEATURES = {
+    "free" => %w[users],
+    "pro" => %w[
+      users attendance leaves holidays payroll access_control records
+      performance activities
+    ],
+    "enterprise" => %w[
+      users attendance leaves holidays payroll access_control records
+      performance activities work
+    ]
+  }.freeze
+
+  FREE_USER_LIMIT = 5
 
   before_create :generate_uuid
 

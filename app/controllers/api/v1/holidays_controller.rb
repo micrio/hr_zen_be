@@ -3,6 +3,8 @@
 module Api
   module V1
     class HolidaysController < BaseController
+      plan_feature :holidays
+
       before_action :set_holiday, only: %i[update destroy]
 
       # GET /api/v1/holidays?year=

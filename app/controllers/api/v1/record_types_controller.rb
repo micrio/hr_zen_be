@@ -3,6 +3,8 @@
 module Api
   module V1
     class RecordTypesController < BaseController
+      plan_feature :access_control
+
       before_action :set_record_type, only: %i[show update destroy]
 
       # GET /api/v1/record_types

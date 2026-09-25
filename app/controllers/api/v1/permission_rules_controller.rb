@@ -3,6 +3,8 @@
 module Api
   module V1
     class PermissionRulesController < BaseController
+      plan_feature :access_control
+
       before_action :set_permission_rule, only: %i[show update destroy]
 
       # GET /api/v1/permission_rules?role_id=&record_type_id=

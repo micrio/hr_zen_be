@@ -3,6 +3,8 @@
 module Api
   module V1
     class PerformanceReviewsController < BaseController
+      plan_feature :performance
+
       before_action :set_review, only: %i[update destroy]
 
       # GET /api/v1/performance_reviews?user_id=

@@ -3,6 +3,8 @@
 module Api
   module V1
     class LeaveApplicationsController < BaseController
+      plan_feature :leaves
+
       before_action :set_application, only: %i[show update destroy]
 
       def index

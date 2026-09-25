@@ -3,6 +3,8 @@
 module Api
   module V1
     class CompensationsController < BaseController
+      plan_feature :payroll
+
       before_action :set_compensation, only: %i[update destroy]
 
       # GET /api/v1/compensations

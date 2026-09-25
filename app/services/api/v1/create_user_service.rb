@@ -13,6 +13,8 @@ module Api
       end
 
       def perform
+        enforce_user_limit!
+
         ActiveRecord::Base.transaction do
           user = build_user
           user.custom_fields = normalized_custom_fields
@@ -25,6 +27,17 @@ module Api
       private
 
       attr_reader :organization, :attributes, :role_names, :custom_fields
+
+      def enforce_user_limit!
+        return unless organization.user_limit_reached?
+
+        raise Api::Error::UnprocessableEntity.new(
+          "Plan user limit reached",
+          details: {
+            base: [ "The free plan allows up to #{organization.user_limit} users. Upgrade to add more." ]
+          }
+        )
+      end
 
       def build_user
         User.new(attributes).tap do |user|

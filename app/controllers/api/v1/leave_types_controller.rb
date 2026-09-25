@@ -3,6 +3,8 @@
 module Api
   module V1
     class LeaveTypesController < BaseController
+      plan_feature :leaves
+
       before_action :set_leave_type, only: %i[show update destroy]
 
       def index

@@ -3,6 +3,8 @@
 module Api
   module V1
     class AttendanceController < BaseController
+      plan_feature :attendance
+
       include AttendanceClockRendering
 
       # POST /api/v1/attendance/clock
