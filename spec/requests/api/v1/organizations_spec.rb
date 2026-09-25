@@ -28,7 +28,7 @@ RSpec.describe "Organizations (SaaS superadmin)", type: :request do
       expect(response).to have_http_status(:ok)
       ids = response_body["data"].map { |o| o["id"] }
       expect(ids).to include(organization.id, other_organization.id)
-      expect(response_body["data"].first).to include("plan", "users_count", "subdomain")
+      expect(response_body["data"].first).to include("plan", "users_count", "subdomain", "features", "limits")
     end
 
     it "forbids a regular org admin" do

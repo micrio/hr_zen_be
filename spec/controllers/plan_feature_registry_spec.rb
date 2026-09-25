@@ -12,6 +12,7 @@ RSpec.describe "Plan feature registry" do
     Api::V1::KioskController
     Api::V1::OrganizationsController
     Api::V1::EntitlementsController
+    Api::V1::PlansController
   ].freeze
 
   def controller_constants

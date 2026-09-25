@@ -18,12 +18,31 @@ class Organization < ApplicationRecord
     limit.present? && users.count >= limit
   end
 
+  def self.limits_for(plan)
+    { users: plan == "free" ? FREE_USER_LIMIT : nil }
+  end
+
+  # The full tier catalogue (platform admin plan picker).
+  def self.plan_catalog
+    PLAN_TYPES.map do |plan_name|
+      {
+        plan: plan_name,
+        features: PLAN_FEATURES.fetch(plan_name, []),
+        limits: limits_for(plan_name)
+      }
+    end
+  end
+
+  def limits
+    self.class.limits_for(plan)
+  end
+
   # Everything the client needs to gate UI: plan + allowed features + limits.
   def entitlements
     {
       plan: plan,
       features: PLAN_FEATURES.fetch(plan, []),
-      limits: { users: user_limit }
+      limits: limits
     }
   end
 
