@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000020) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000021) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -224,6 +224,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000020) do
     t.index ["role_id"], name: "index_permission_rules_on_role_id"
   end
 
+  create_table "projects", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "team_id"
+    t.string "name", null: false
+    t.text "description"
+    t.string "status", default: "active", null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "name"], name: "index_projects_on_organization_id_and_name", unique: true
+    t.index ["organization_id"], name: "index_projects_on_organization_id"
+    t.index ["team_id"], name: "index_projects_on_team_id"
+  end
+
   create_table "record_entries", force: :cascade do |t|
     t.bigint "organization_id", null: false
     t.bigint "record_type_id", null: false
@@ -254,6 +269,47 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000020) do
     t.datetime "updated_at", null: false
     t.index ["organization_id", "name"], name: "index_roles_on_organization_id_and_name", unique: true
     t.index ["organization_id"], name: "index_roles_on_organization_id"
+  end
+
+  create_table "tasks", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "project_id", null: false
+    t.bigint "assignee_id"
+    t.string "title", null: false
+    t.text "description"
+    t.string "status", default: "todo", null: false
+    t.string "priority", default: "medium", null: false
+    t.date "due_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
+    t.index ["organization_id", "project_id", "status"], name: "index_tasks_on_organization_id_and_project_id_and_status"
+    t.index ["organization_id"], name: "index_tasks_on_organization_id"
+    t.index ["project_id"], name: "index_tasks_on_project_id"
+  end
+
+  create_table "team_members", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "team_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_team_members_on_organization_id"
+    t.index ["team_id", "user_id"], name: "index_team_members_on_team_id_and_user_id", unique: true
+    t.index ["team_id"], name: "index_team_members_on_team_id"
+    t.index ["user_id"], name: "index_team_members_on_user_id"
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.bigint "lead_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lead_id"], name: "index_teams_on_lead_id"
+    t.index ["organization_id", "name"], name: "index_teams_on_organization_id_and_name", unique: true
+    t.index ["organization_id"], name: "index_teams_on_organization_id"
   end
 
   create_table "user_roles", force: :cascade do |t|
@@ -340,10 +396,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000020) do
   add_foreign_key "permission_rules", "organizations"
   add_foreign_key "permission_rules", "record_types"
   add_foreign_key "permission_rules", "roles"
+  add_foreign_key "projects", "organizations"
+  add_foreign_key "projects", "teams"
   add_foreign_key "record_entries", "organizations"
   add_foreign_key "record_entries", "record_types"
   add_foreign_key "record_types", "organizations"
   add_foreign_key "roles", "organizations"
+  add_foreign_key "tasks", "organizations"
+  add_foreign_key "tasks", "projects"
+  add_foreign_key "tasks", "users", column: "assignee_id"
+  add_foreign_key "team_members", "organizations"
+  add_foreign_key "team_members", "teams"
+  add_foreign_key "team_members", "users"
+  add_foreign_key "teams", "organizations"
+  add_foreign_key "teams", "users", column: "lead_id"
   add_foreign_key "user_roles", "organizations"
   add_foreign_key "user_roles", "roles"
   add_foreign_key "user_roles", "users"
