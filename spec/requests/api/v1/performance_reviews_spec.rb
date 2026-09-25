@@ -57,6 +57,19 @@ RSpec.describe "Performance reviews", type: :request do
     expect(response_body["data"].first["user_name"]).to eq(employee.full_name)
   end
 
+  it "filters by status" do
+    superadmin
+    ActsAsTenant.with_tenant(organization) do
+      PerformanceReview.create!(user: employee, status: "draft")
+      PerformanceReview.create!(user: employee, status: "acknowledged")
+    end
+
+    get "/api/v1/performance_reviews?status=acknowledged", headers: headers, as: :json
+
+    expect(response_body["data"].length).to eq(1)
+    expect(response_body["data"].first["status"]).to eq("acknowledged")
+  end
+
   it "updates a review" do
     superadmin
     review = ActsAsTenant.with_tenant(organization) do

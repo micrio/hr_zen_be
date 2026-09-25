@@ -10,7 +10,8 @@ module Api
         authorize PerformanceReview
 
         reviews = Api::V1::ListPerformanceReviewsService.new(
-          user_id: params[:user_id]
+          user_id: params[:user_id],
+          status: params[:status]
         ).perform
 
         render_jsonapi(
