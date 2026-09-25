@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000015) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000016) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -54,6 +54,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000015) do
     t.datetime "updated_at", null: false
     t.index ["clock_token"], name: "index_attendance_settings_on_clock_token", unique: true
     t.index ["organization_id"], name: "index_attendance_settings_on_organization_id", unique: true
+  end
+
+  create_table "compensations", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.string "salary_type", default: "daily", null: false
+    t.decimal "rate", precision: 12, scale: 2, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "user_id"], name: "index_compensations_on_organization_id_and_user_id", unique: true
+    t.index ["organization_id"], name: "index_compensations_on_organization_id"
+    t.index ["user_id"], name: "index_compensations_on_user_id"
   end
 
   create_table "face_embeddings", force: :cascade do |t|
@@ -125,6 +137,35 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000015) do
     t.index ["owner_id"], name: "index_organizations_on_owner_id"
     t.index ["subdomain"], name: "index_organizations_on_subdomain", unique: true
     t.index ["uuid"], name: "index_organizations_on_uuid", unique: true
+  end
+
+  create_table "payroll_entries", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.string "salary_type", null: false
+    t.decimal "rate", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "units", precision: 10, scale: 2, default: "0.0", null: false
+    t.decimal "gross_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "net_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.jsonb "adjustments", default: [], null: false
+    t.string "currency", default: "USD", null: false
+    t.datetime "computed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "user_id", "period_start"], name: "idx_on_organization_id_user_id_period_start_955b186977"
+    t.index ["organization_id"], name: "index_payroll_entries_on_organization_id"
+    t.index ["user_id"], name: "index_payroll_entries_on_user_id"
+  end
+
+  create_table "payroll_settings", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.string "currency", default: "USD", null: false
+    t.string "default_salary_type", default: "daily", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_payroll_settings_on_organization_id", unique: true
   end
 
   create_table "permission_rules", force: :cascade do |t|
@@ -231,6 +272,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000015) do
   add_foreign_key "attendance_events", "organizations"
   add_foreign_key "attendance_events", "users"
   add_foreign_key "attendance_settings", "organizations"
+  add_foreign_key "compensations", "organizations"
+  add_foreign_key "compensations", "users"
   add_foreign_key "face_embeddings", "organizations"
   add_foreign_key "face_embeddings", "users"
   add_foreign_key "leave_applications", "leave_types"
@@ -241,6 +284,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000015) do
   add_foreign_key "leave_balances", "users"
   add_foreign_key "leave_types", "organizations"
   add_foreign_key "organizations", "users", column: "owner_id"
+  add_foreign_key "payroll_entries", "organizations"
+  add_foreign_key "payroll_entries", "users"
+  add_foreign_key "payroll_settings", "organizations"
   add_foreign_key "permission_rules", "organizations"
   add_foreign_key "permission_rules", "record_types"
   add_foreign_key "permission_rules", "roles"

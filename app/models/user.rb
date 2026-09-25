@@ -14,6 +14,8 @@ class User < ApplicationRecord
   has_many :attendance_events, dependent: :destroy
   has_many :leave_balances, dependent: :destroy
   has_many :leave_applications, dependent: :destroy
+  has_many :compensations, dependent: :destroy
+  has_many :payroll_entries, dependent: :destroy
 
   before_create :generate_uuid
 

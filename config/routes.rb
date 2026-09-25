@@ -47,6 +47,11 @@ Rails.application.routes.draw do
       end
 
       resources :leave_applications, only: %i[index show create update destroy]
+
+      get "payroll/setting", to: "payroll_settings#show"
+      patch "payroll/setting", to: "payroll_settings#update"
+      resources :compensations, only: %i[index create update destroy]
+      resources :payroll_entries, only: %i[index create destroy]
       post "pdf_extractions", to: "pdf_extractions#create"
     end
   end
