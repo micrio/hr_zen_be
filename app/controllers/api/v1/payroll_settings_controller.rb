@@ -31,7 +31,7 @@ module Api
       end
 
       def setting_params
-        params.require(:payroll_setting).permit(:currency, :default_salary_type)
+        params.require(:payroll_setting).permit(:currency, :default_salary_type, :pay_frequency)
       end
     end
   end

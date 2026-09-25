@@ -25,12 +25,13 @@ RSpec.describe "Payroll", type: :request do
       expect(response_body.dig("data", "currency")).to eq("USD")
 
       patch "/api/v1/payroll/setting",
-            params: { payroll_setting: { currency: "PHP", default_salary_type: "monthly" } },
+            params: { payroll_setting: { currency: "PHP", default_salary_type: "monthly", pay_frequency: "semi_monthly" } },
             headers: headers,
             as: :json
 
       expect(response_body.dig("data", "currency")).to eq("PHP")
       expect(response_body.dig("data", "default_salary_type")).to eq("monthly")
+      expect(response_body.dig("data", "pay_frequency")).to eq("semi_monthly")
     end
 
     it "forbids non-superadmins" do

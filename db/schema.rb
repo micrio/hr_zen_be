@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000016) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000017) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -165,6 +165,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000016) do
     t.string "default_salary_type", default: "daily", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "pay_frequency", default: "monthly", null: false
     t.index ["organization_id"], name: "index_payroll_settings_on_organization_id", unique: true
   end
 
