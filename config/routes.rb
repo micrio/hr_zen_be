@@ -26,6 +26,7 @@ Rails.application.routes.draw do
       end
 
       get "activities", to: "activities#index"
+      get "entitlements", to: "entitlements#show"
 
       post "attendance/clock", to: "attendance#clock"
       get "attendance/events", to: "attendance_events#index"

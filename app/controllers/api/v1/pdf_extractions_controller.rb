@@ -3,6 +3,8 @@
 module Api
   module V1
     class PdfExtractionsController < BaseController
+      plan_feature :users
+
       # POST /api/v1/pdf_extractions  (multipart: file=@profile.pdf)
       def create
         authorize :pdf_extraction, :create?

@@ -18,6 +18,15 @@ class Organization < ApplicationRecord
     limit.present? && users.count >= limit
   end
 
+  # Everything the client needs to gate UI: plan + allowed features + limits.
+  def entitlements
+    {
+      plan: plan,
+      features: PLAN_FEATURES.fetch(plan, []),
+      limits: { users: user_limit }
+    }
+  end
+
   PLAN_TYPES = %w[free pro enterprise].freeze
 
   # Feature access per subscription tier.
@@ -34,6 +43,8 @@ class Organization < ApplicationRecord
   }.freeze
 
   FREE_USER_LIMIT = 5
+
+  ALL_FEATURES = PLAN_FEATURES.values.flatten.uniq.freeze
 
   before_create :generate_uuid
 
