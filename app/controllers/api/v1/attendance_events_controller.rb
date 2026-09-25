@@ -23,7 +23,7 @@ module Api
       private
 
       def target_user_id
-        return current_user.id unless current_user.has_role?("superadmin")
+        return current_user.id unless current_user.admin?
         return params[:user_id] if params[:user_id].present?
 
         nil # superadmins see all events in their organization

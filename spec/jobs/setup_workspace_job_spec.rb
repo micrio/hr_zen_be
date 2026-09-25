@@ -22,7 +22,7 @@ RSpec.describe SetupWorkspaceJob, type: :job do
 
       ActsAsTenant.with_tenant(organization) do
         expect(Role.pluck(:name)).to match_array(
-          %w[superadmin hr_manager leave_approver employee]
+          %w[admin hr_manager leave_approver employee]
         )
         expect(RecordType.pluck(:name)).to match_array(
           %w[User EmployeeProfile LeaveApplication SalarySlip]
@@ -30,11 +30,11 @@ RSpec.describe SetupWorkspaceJob, type: :job do
       end
     end
 
-    it "assigns the superadmin role to the organization owner" do
+    it "assigns the admin role to the organization owner" do
       described_class.perform_now(organization.id)
 
       ActsAsTenant.with_tenant(organization) do
-        expect(owner.reload.has_role?("superadmin")).to be true
+        expect(owner.reload.has_role?("admin")).to be true
       end
     end
 

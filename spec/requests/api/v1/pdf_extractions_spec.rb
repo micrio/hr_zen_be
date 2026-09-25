@@ -7,13 +7,13 @@ RSpec.describe "POST /api/v1/pdf_extractions", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   def upload(content_type: "application/pdf")
     file = Tempfile.new([ "profile", ".pdf" ])
@@ -30,7 +30,7 @@ RSpec.describe "POST /api/v1/pdf_extractions", type: :request do
     end
 
     it "returns parsed profile fields" do
-      superadmin
+      admin
 
       post "/api/v1/pdf_extractions", params: { file: upload }, headers: headers
 
@@ -43,7 +43,7 @@ RSpec.describe "POST /api/v1/pdf_extractions", type: :request do
 
   describe "with an unsupported file type" do
     it "returns 422" do
-      superadmin
+      admin
 
       post "/api/v1/pdf_extractions",
            params: { file: upload(content_type: "text/plain") },
@@ -56,7 +56,7 @@ RSpec.describe "POST /api/v1/pdf_extractions", type: :request do
 
   describe "with a missing file" do
     it "returns 422" do
-      superadmin
+      admin
 
       post "/api/v1/pdf_extractions", params: {}, headers: headers
 
@@ -65,7 +65,7 @@ RSpec.describe "POST /api/v1/pdf_extractions", type: :request do
   end
 
   describe "authorization" do
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       post "/api/v1/pdf_extractions", params: { file: upload }, headers: auth_headers(member)
 
       expect(response).to have_http_status(:forbidden)

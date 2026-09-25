@@ -37,14 +37,14 @@ class UserPolicy < ApplicationPolicy
     private
 
     def superadmin?
-      user&.has_role?("superadmin")
+      user&.admin?
     end
   end
 
   private
 
   def superadmin?
-    user&.has_role?("superadmin")
+    user&.admin?
   end
 
   def own_record?

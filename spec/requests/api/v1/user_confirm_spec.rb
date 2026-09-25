@@ -7,13 +7,13 @@ RSpec.describe "POST /api/v1/users/:id/confirm", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   def unconfirmed_user
     build(:user, :unconfirmed, organization: organization).tap do |user|
@@ -23,7 +23,7 @@ RSpec.describe "POST /api/v1/users/:id/confirm", type: :request do
   end
 
   it "force-confirms an unconfirmed user" do
-    superadmin
+    admin
     target = unconfirmed_user
     expect(target.confirmed?).to be false
 
@@ -36,7 +36,7 @@ RSpec.describe "POST /api/v1/users/:id/confirm", type: :request do
   end
 
   it "is idempotent for an already confirmed user" do
-    superadmin
+    admin
     target = create(:user, organization: organization)
 
     post "/api/v1/users/#{target.id}/confirm", headers: headers, as: :json
@@ -45,7 +45,7 @@ RSpec.describe "POST /api/v1/users/:id/confirm", type: :request do
     expect(target.reload.confirmed?).to be true
   end
 
-  it "forbids non-superadmins" do
+  it "forbids non-admins" do
     target = unconfirmed_user
 
     post "/api/v1/users/#{target.id}/confirm",

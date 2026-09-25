@@ -3,7 +3,7 @@
 module Api
   module V1
     class DeleteRoleService
-      PROTECTED_ROLES = %w[superadmin].freeze
+      PROTECTED_ROLES = %w[admin superadmin].freeze
 
       def initialize(args)
         @role = args[:role]

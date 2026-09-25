@@ -7,13 +7,13 @@ RSpec.describe "PermissionRules", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   def role_named(name)
     ActsAsTenant.with_tenant(organization) { Role.find_by!(name: name) }
@@ -25,7 +25,7 @@ RSpec.describe "PermissionRules", type: :request do
 
   describe "GET /api/v1/permission_rules" do
     it "lists rules and filters by role" do
-      superadmin
+      admin
       role = role_named("employee")
 
       get "/api/v1/permission_rules?role_id=#{role.id}", headers: headers, as: :json
@@ -38,7 +38,7 @@ RSpec.describe "PermissionRules", type: :request do
       )
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       get "/api/v1/permission_rules", headers: auth_headers(member), as: :json
 
       expect(response).to have_http_status(:forbidden)
@@ -47,7 +47,7 @@ RSpec.describe "PermissionRules", type: :request do
 
   describe "POST /api/v1/permission_rules" do
     it "creates a rule with action flags" do
-      superadmin
+      admin
       role = role_named("employee")
       record_type = record_type_named("User")
 
@@ -74,7 +74,7 @@ RSpec.describe "PermissionRules", type: :request do
     end
 
     it "rejects a duplicate role/record_type/perm_level" do
-      superadmin
+      admin
       role = role_named("employee")
       record_type = record_type_named("LeaveApplication")
 
@@ -96,7 +96,7 @@ RSpec.describe "PermissionRules", type: :request do
 
   describe "PATCH /api/v1/permission_rules/:id" do
     it "toggles action flags" do
-      superadmin
+      admin
       rule = ActsAsTenant.with_tenant(organization) { PermissionRule.readable.first }
 
       patch "/api/v1/permission_rules/#{rule.id}",
@@ -112,7 +112,7 @@ RSpec.describe "PermissionRules", type: :request do
 
   describe "DELETE /api/v1/permission_rules/:id" do
     it "deletes a rule" do
-      superadmin
+      admin
       rule = ActsAsTenant.with_tenant(organization) { PermissionRule.first }
 
       expect do

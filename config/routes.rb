@@ -42,6 +42,7 @@ Rails.application.routes.draw do
 
       resources :holidays, only: %i[index create update destroy]
       resources :performance_reviews, only: %i[index create update destroy]
+      resources :organizations, only: %i[index update]
       resources :teams, only: %i[index create update destroy]
       resources :projects, only: %i[index create update destroy]
       resources :tasks, only: %i[index create update destroy]

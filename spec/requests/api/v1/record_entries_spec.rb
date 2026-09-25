@@ -7,13 +7,13 @@ RSpec.describe "RecordEntries", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   let(:record_type) do
     ActsAsTenant.with_tenant(organization) do
@@ -29,7 +29,7 @@ RSpec.describe "RecordEntries", type: :request do
 
   describe "POST /api/v1/record_entries" do
     it "creates an entry, coercing values by field type" do
-      superadmin
+      admin
 
       expect do
         post "/api/v1/record_entries",
@@ -44,7 +44,7 @@ RSpec.describe "RecordEntries", type: :request do
     end
 
     it "rejects a missing required field" do
-      superadmin
+      admin
 
       post "/api/v1/record_entries",
            params: { record_entry: { record_type_id: record_type.id, data: { note: "x" } } },
@@ -56,7 +56,7 @@ RSpec.describe "RecordEntries", type: :request do
     end
 
     it "rejects a value that fails type coercion" do
-      superadmin
+      admin
 
       post "/api/v1/record_entries",
            params: { record_entry: { record_type_id: record_type.id, data: { amount: "abc" } } },
@@ -68,7 +68,7 @@ RSpec.describe "RecordEntries", type: :request do
     end
 
     it "rejects undefined fields" do
-      superadmin
+      admin
 
       post "/api/v1/record_entries",
            params: { record_entry: { record_type_id: record_type.id, data: { amount: 1, ghost: "x" } } },
@@ -82,7 +82,7 @@ RSpec.describe "RecordEntries", type: :request do
 
   describe "GET /api/v1/record_entries" do
     it "lists entries filtered by record type" do
-      superadmin
+      admin
       entry = ActsAsTenant.with_tenant(organization) do
         RecordEntry.create!(record_type: record_type, data: { "amount" => 10.0 })
       end
@@ -93,7 +93,7 @@ RSpec.describe "RecordEntries", type: :request do
       expect(response_body["data"].map { |e| e["id"] }).to eq([ entry.id ])
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       get "/api/v1/record_entries", headers: auth_headers(member), as: :json
 
       expect(response).to have_http_status(:forbidden)
@@ -102,7 +102,7 @@ RSpec.describe "RecordEntries", type: :request do
 
   describe "PATCH /api/v1/record_entries/:id" do
     it "merges and re-validates the data" do
-      superadmin
+      admin
       entry = ActsAsTenant.with_tenant(organization) do
         RecordEntry.create!(record_type: record_type, data: { "amount" => 10.0, "note" => "old" })
       end
@@ -120,7 +120,7 @@ RSpec.describe "RecordEntries", type: :request do
 
   describe "DELETE /api/v1/record_entries/:id" do
     it "deletes an entry" do
-      superadmin
+      admin
       entry = ActsAsTenant.with_tenant(organization) do
         RecordEntry.create!(record_type: record_type, data: { "amount" => 10.0 })
       end

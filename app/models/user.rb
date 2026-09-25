@@ -43,6 +43,11 @@ class User < ApplicationRecord
     user_roles.find_or_create_by!(role: target_role)
   end
 
+  # Org admin (or the SaaS platform superadmin).
+  def admin?
+    platform_admin? || has_role?("admin")
+  end
+
   def has_role?(role_name)
     user_roles.joins(:role).exists?(roles: { name: role_name.to_s.downcase.strip })
   end

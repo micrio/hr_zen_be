@@ -7,13 +7,13 @@ RSpec.describe "Attendance settings", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   describe "GET /api/v1/attendance/setting" do
     it "creates and returns a setting with a unique clock token" do
@@ -25,7 +25,7 @@ RSpec.describe "Attendance settings", type: :request do
       expect(response_body.dig("data", "cooldown_seconds")).to eq(60)
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       get "/api/v1/attendance/setting", headers: auth_headers(member), as: :json
 
       expect(response).to have_http_status(:forbidden)

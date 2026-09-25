@@ -7,9 +7,9 @@ RSpec.describe "Attendance", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:employee) { create(:user, organization: organization) }
@@ -26,7 +26,7 @@ RSpec.describe "Attendance", type: :request do
     it "clocks the recognized employee in, then out, on repeat scans" do
       post "/api/v1/attendance/clock",
            params: { attendance: { embedding: embedding } },
-           headers: auth_headers(superadmin),
+           headers: auth_headers(admin),
            as: :json
 
       expect(response).to have_http_status(:created)
@@ -36,7 +36,7 @@ RSpec.describe "Attendance", type: :request do
 
       post "/api/v1/attendance/clock",
            params: { attendance: { embedding: embedding } },
-           headers: auth_headers(superadmin),
+           headers: auth_headers(admin),
            as: :json
 
       expect(response_body.dig("data", "event", "kind")).to eq("clock_out")
@@ -50,14 +50,14 @@ RSpec.describe "Attendance", type: :request do
 
       post "/api/v1/attendance/clock",
            params: { attendance: { embedding: embedding } },
-           headers: auth_headers(superadmin),
+           headers: auth_headers(admin),
            as: :json
 
       expect(response).to have_http_status(:created)
 
       post "/api/v1/attendance/clock",
            params: { attendance: { embedding: embedding } },
-           headers: auth_headers(superadmin),
+           headers: auth_headers(admin),
            as: :json
 
       expect(response).to have_http_status(:ok)
@@ -68,7 +68,7 @@ RSpec.describe "Attendance", type: :request do
     it "rejects an unrecognized face" do
       post "/api/v1/attendance/clock",
            params: { attendance: { embedding: Array.new(128) { 2.5 } } },
-           headers: auth_headers(superadmin),
+           headers: auth_headers(admin),
            as: :json
 
       expect(response).to have_http_status(:unprocessable_entity)
@@ -99,16 +99,16 @@ RSpec.describe "Attendance", type: :request do
       expect(response_body["data"].first["kind"]).to eq("clock_in")
     end
 
-    it "returns all organization events for a superadmin" do
-      get "/api/v1/attendance/events", headers: auth_headers(superadmin), as: :json
+    it "returns all organization events for a admin" do
+      get "/api/v1/attendance/events", headers: auth_headers(admin), as: :json
 
       expect(response).to have_http_status(:ok)
       expect(response_body["data"].length).to eq(1)
     end
 
-    it "lets a superadmin filter by user" do
+    it "lets a admin filter by user" do
       get "/api/v1/attendance/events?user_id=#{employee.id}",
-          headers: auth_headers(superadmin),
+          headers: auth_headers(admin),
           as: :json
 
       expect(response).to have_http_status(:ok)

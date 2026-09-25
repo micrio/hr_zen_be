@@ -19,16 +19,16 @@ RSpec.describe "User custom fields (from the 'User' record type)", type: :reques
     end
   end
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   describe "POST /api/v1/users" do
     it "stores validated custom fields" do
-      superadmin
+      admin
 
       post "/api/v1/users",
            params: {
@@ -51,7 +51,7 @@ RSpec.describe "User custom fields (from the 'User' record type)", type: :reques
     end
 
     it "rejects core fields passed as custom fields" do
-      superadmin
+      admin
 
       post "/api/v1/users",
            params: {
@@ -72,7 +72,7 @@ RSpec.describe "User custom fields (from the 'User' record type)", type: :reques
     end
 
     it "rejects level-2 sensitive fields as custom fields" do
-      superadmin
+      admin
 
       post "/api/v1/users",
            params: {
@@ -95,7 +95,7 @@ RSpec.describe "User custom fields (from the 'User' record type)", type: :reques
 
   describe "PATCH /api/v1/users/:id" do
     it "merges custom fields" do
-      superadmin
+      admin
       target = ActsAsTenant.with_tenant(organization) do
         create(:user, organization: organization, custom_fields: { "age" => 30.0, "gender" => "male" })
       end

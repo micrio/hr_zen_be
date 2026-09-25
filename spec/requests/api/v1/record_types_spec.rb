@@ -7,13 +7,13 @@ RSpec.describe "RecordTypes", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   def record_type_named(name)
     ActsAsTenant.with_tenant(organization) { RecordType.find_by!(name: name) }
@@ -21,7 +21,7 @@ RSpec.describe "RecordTypes", type: :request do
 
   describe "GET /api/v1/record_types" do
     it "lists record types with field levels" do
-      superadmin
+      admin
 
       get "/api/v1/record_types", headers: headers, as: :json
 
@@ -31,7 +31,7 @@ RSpec.describe "RecordTypes", type: :request do
       expect(response_body["data"].first).to include("field_levels")
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       get "/api/v1/record_types", headers: auth_headers(member), as: :json
 
       expect(response).to have_http_status(:forbidden)
@@ -40,7 +40,7 @@ RSpec.describe "RecordTypes", type: :request do
 
   describe "POST /api/v1/record_types" do
     it "creates a record type" do
-      superadmin
+      admin
 
       expect do
         post "/api/v1/record_types",
@@ -64,7 +64,7 @@ RSpec.describe "RecordTypes", type: :request do
 
   describe "PATCH /api/v1/record_types/:id" do
     it "updates the field definitions" do
-      superadmin
+      admin
       record_type = record_type_named("User")
 
       patch "/api/v1/record_types/#{record_type.id}",
@@ -91,7 +91,7 @@ RSpec.describe "RecordTypes", type: :request do
 
   describe "DELETE /api/v1/record_types/:id" do
     it "refuses to delete a record type with permission rules" do
-      superadmin
+      admin
       record_type = record_type_named("EmployeeProfile")
 
       delete "/api/v1/record_types/#{record_type.id}", headers: headers, as: :json
@@ -100,7 +100,7 @@ RSpec.describe "RecordTypes", type: :request do
     end
 
     it "deletes a record type without permission rules" do
-      superadmin
+      admin
       record_type = record_type_named("SalarySlip")
 
       expect do

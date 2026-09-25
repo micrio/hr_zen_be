@@ -7,30 +7,30 @@ RSpec.describe "Users CRUD", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   describe "GET /api/v1/users" do
     it "lists users of the organization with pagination meta" do
-      superadmin
+      admin
       member
 
       get "/api/v1/users", headers: headers, as: :json
 
       expect(response).to have_http_status(:ok)
       emails = response_body["data"].map { |u| u["email"] }
-      expect(emails).to match_array([ superadmin.email, member.email ])
+      expect(emails).to match_array([ admin.email, member.email ])
       expect(response_body["meta"]).to include("page", "per_page", "total")
     end
 
     it "does not leak users from other organizations" do
       outsider = create(:user, organization: create(:organization))
-      superadmin
+      admin
 
       get "/api/v1/users", headers: headers, as: :json
 
@@ -38,7 +38,7 @@ RSpec.describe "Users CRUD", type: :request do
     end
 
     it "filters by query" do
-      superadmin
+      admin
       create(:user, organization: organization, first_name: "Zelda", email: "zelda@example.com")
 
       get "/api/v1/users?query=zelda", headers: headers, as: :json
@@ -46,7 +46,7 @@ RSpec.describe "Users CRUD", type: :request do
       expect(response_body["data"].map { |u| u["email"] }).to eq([ "zelda@example.com" ])
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       get "/api/v1/users", headers: auth_headers(member), as: :json
 
       expect(response).to have_http_status(:forbidden)
@@ -74,7 +74,7 @@ RSpec.describe "Users CRUD", type: :request do
     end
 
     it "creates a user in the organization with roles" do
-      superadmin
+      admin
 
       expect { post "/api/v1/users", params: params, headers: headers, as: :json }
         .to change(User, :count).by(1)
@@ -85,7 +85,7 @@ RSpec.describe "Users CRUD", type: :request do
     end
 
     it "stores age and gender" do
-      superadmin
+      admin
       params[:user][:age] = 30
       params[:user][:gender] = "female"
 
@@ -97,7 +97,7 @@ RSpec.describe "Users CRUD", type: :request do
     end
 
     it "rejects an out-of-range age" do
-      superadmin
+      admin
       params[:user][:age] = 999
 
       post "/api/v1/users", params: params, headers: headers, as: :json
@@ -107,7 +107,7 @@ RSpec.describe "Users CRUD", type: :request do
     end
 
     it "rejects an invalid payload" do
-      superadmin
+      admin
       params[:user][:password_confirmation] = "mismatch"
 
       post "/api/v1/users", params: params, headers: headers, as: :json
@@ -158,7 +158,7 @@ RSpec.describe "Users CRUD", type: :request do
 
   describe "DELETE /api/v1/users/:id" do
     it "deletes a user" do
-      superadmin
+      admin
       target = create(:user, organization: organization)
 
       expect do
@@ -169,12 +169,12 @@ RSpec.describe "Users CRUD", type: :request do
     end
 
     it "refuses to delete the current user" do
-      delete "/api/v1/users/#{superadmin.id}", headers: headers, as: :json
+      delete "/api/v1/users/#{admin.id}", headers: headers, as: :json
 
       expect(response).to have_http_status(:forbidden)
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       target = create(:user, organization: organization)
 
       delete "/api/v1/users/#{target.id}", headers: auth_headers(member), as: :json

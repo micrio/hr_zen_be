@@ -7,19 +7,19 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:alice) { create(:user, organization: organization) }
   let(:bob) { create(:user, organization: organization) }
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   describe "teams" do
     it "creates a team with a lead and members" do
-      superadmin
+      admin
 
       expect do
         post "/api/v1/teams",
@@ -37,7 +37,7 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
     end
 
     it "replaces members on update" do
-      superadmin
+      admin
       team = ActsAsTenant.with_tenant(organization) do
         Team.create!(name: "QA").tap do |t|
           t.team_members.create!(user: alice)
@@ -55,7 +55,7 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
     end
 
     it "rejects a duplicate name" do
-      superadmin
+      admin
       ActsAsTenant.with_tenant(organization) { Team.create!(name: "Platform") }
 
       post "/api/v1/teams",
@@ -67,7 +67,7 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
       expect(response_body["details"]).to have_key("name")
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       get "/api/v1/teams", headers: auth_headers(member), as: :json
 
       expect(response).to have_http_status(:forbidden)
@@ -80,7 +80,7 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
     end
 
     it "creates a project and filters by status" do
-      superadmin
+      admin
 
       post "/api/v1/projects",
            params: {
@@ -103,7 +103,7 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
     end
 
     it "rejects an inverted date range" do
-      superadmin
+      admin
 
       post "/api/v1/projects",
            params: { project: { name: "Bad", start_date: "2026-05-01", end_date: "2026-01-01" } },
@@ -121,7 +121,7 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
     end
 
     it "creates a task and filters by project/status" do
-      superadmin
+      admin
 
       post "/api/v1/tasks",
            params: {
@@ -144,7 +144,7 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
     end
 
     it "rejects an invalid status" do
-      superadmin
+      admin
 
       post "/api/v1/tasks",
            params: { task: { project_id: project.id, title: "X", status: "nope" } },
@@ -156,7 +156,7 @@ RSpec.describe "Work management (teams, projects, tasks)", type: :request do
     end
 
     it "deletes a task" do
-      superadmin
+      admin
       task = ActsAsTenant.with_tenant(organization) do
         Task.create!(project: project, title: "X")
       end

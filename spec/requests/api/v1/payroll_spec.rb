@@ -7,17 +7,17 @@ RSpec.describe "Payroll", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:employee) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   describe "payroll settings" do
     it "returns defaults and updates them" do
-      superadmin
+      admin
 
       get "/api/v1/payroll/setting", headers: headers, as: :json
 
@@ -34,7 +34,7 @@ RSpec.describe "Payroll", type: :request do
       expect(response_body.dig("data", "pay_frequency")).to eq("semi_monthly")
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       get "/api/v1/payroll/setting", headers: auth_headers(employee), as: :json
 
       expect(response).to have_http_status(:forbidden)
@@ -43,7 +43,7 @@ RSpec.describe "Payroll", type: :request do
 
   describe "compensations" do
     it "creates and updates an employee compensation" do
-      superadmin
+      admin
 
       post "/api/v1/compensations",
            params: { compensation: { user_id: employee.id, salary_type: "daily", rate: 500 } },
@@ -67,7 +67,7 @@ RSpec.describe "Payroll", type: :request do
 
   describe "POST /api/v1/payroll_entries" do
     before do
-      superadmin
+      admin
       ActsAsTenant.with_tenant(organization) do
         Compensation.create!(user: employee, salary_type: salary_type, rate: rate)
       end

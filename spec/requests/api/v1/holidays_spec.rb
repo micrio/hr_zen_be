@@ -7,16 +7,16 @@ RSpec.describe "Holidays", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   it "creates and lists holidays" do
-    superadmin
+    admin
 
     post "/api/v1/holidays",
          params: { holiday: { name: "New Year", date: "2026-01-01", recurring: true } },
@@ -33,7 +33,7 @@ RSpec.describe "Holidays", type: :request do
   end
 
   it "rejects a duplicate date" do
-    superadmin
+    admin
     ActsAsTenant.with_tenant(organization) do
       Holiday.create!(name: "Christmas", date: "2026-12-25")
     end
@@ -48,7 +48,7 @@ RSpec.describe "Holidays", type: :request do
   end
 
   it "updates and deletes a holiday" do
-    superadmin
+    admin
     holiday = ActsAsTenant.with_tenant(organization) do
       Holiday.create!(name: "Old", date: "2026-05-01")
     end
@@ -67,7 +67,7 @@ RSpec.describe "Holidays", type: :request do
   end
 
   it "filters by year, keeping recurring holidays" do
-    superadmin
+    admin
     ActsAsTenant.with_tenant(organization) do
       Holiday.create!(name: "2025 only", date: "2025-06-01")
       Holiday.create!(name: "Recurring", date: "2024-01-01", recurring: true)
@@ -80,7 +80,7 @@ RSpec.describe "Holidays", type: :request do
     expect(names).to match_array([ "Recurring", "2026 day" ])
   end
 
-  it "forbids non-superadmins" do
+  it "forbids non-admins" do
     get "/api/v1/holidays", headers: auth_headers(member), as: :json
 
     expect(response).to have_http_status(:forbidden)

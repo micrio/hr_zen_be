@@ -20,6 +20,6 @@ class TeamPolicy < ApplicationPolicy
   private
 
   def superadmin?
-    user&.has_role?("superadmin")
+    user&.admin?
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000021) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000022) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -145,6 +145,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000021) do
     t.boolean "status", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "plan", default: "free", null: false
     t.index ["owner_id"], name: "index_organizations_on_owner_id"
     t.index ["subdomain"], name: "index_organizations_on_subdomain", unique: true
     t.index ["uuid"], name: "index_organizations_on_uuid", unique: true
@@ -349,6 +350,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000021) do
     t.jsonb "custom_fields", default: {}, null: false
     t.integer "age"
     t.string "gender"
+    t.boolean "platform_admin", default: false, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["organization_id"], name: "index_users_on_organization_id"

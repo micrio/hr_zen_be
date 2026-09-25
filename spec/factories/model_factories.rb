@@ -27,8 +27,8 @@ FactoryBot.define do
     organization
     sequence(:name) { |n| "role#{n}" }
 
-    factory :superadmin_role do
-      name { "superadmin" }
+    factory :admin_role do
+      name { "admin" }
     end
   end
 

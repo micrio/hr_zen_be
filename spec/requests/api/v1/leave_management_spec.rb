@@ -7,13 +7,13 @@ RSpec.describe "Leave management", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:employee) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   let(:leave_type) do
     ActsAsTenant.with_tenant(organization) do
@@ -23,7 +23,7 @@ RSpec.describe "Leave management", type: :request do
 
   describe "leave types" do
     it "creates and lists leave types" do
-      superadmin
+      admin
 
       post "/api/v1/leave_types",
            params: { leave_type: { name: "Sick", default_days: 8 } },
@@ -38,7 +38,7 @@ RSpec.describe "Leave management", type: :request do
       expect(response_body["data"].map { |t| t["name"] }).to include("Sick")
     end
 
-    it "forbids non-superadmins" do
+    it "forbids non-admins" do
       get "/api/v1/leave_types", headers: auth_headers(employee), as: :json
 
       expect(response).to have_http_status(:forbidden)
@@ -47,7 +47,7 @@ RSpec.describe "Leave management", type: :request do
 
   describe "POST /api/v1/leave_balances/populate" do
     it "creates a balance per user with the default entitlement" do
-      superadmin
+      admin
       employee
 
       expect do
@@ -62,7 +62,7 @@ RSpec.describe "Leave management", type: :request do
     end
 
     it "is idempotent" do
-      superadmin
+      admin
       employee
 
       post "/api/v1/leave_balances/populate",
@@ -77,7 +77,7 @@ RSpec.describe "Leave management", type: :request do
 
   describe "leave applications" do
     before do
-      superadmin
+      admin
       employee
       ActsAsTenant.with_tenant(organization) do
         LeaveBalance.create!(user: employee, leave_type: leave_type, entitled_days: 15)

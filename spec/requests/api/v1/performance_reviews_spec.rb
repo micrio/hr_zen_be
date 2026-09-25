@@ -7,14 +7,14 @@ RSpec.describe "Performance reviews", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:employee) { create(:user, organization: organization) }
   let(:member) { create(:user, organization: organization) }
-  let(:headers) { auth_headers(superadmin) }
+  let(:headers) { auth_headers(admin) }
 
   def params_for(overrides = {})
     {
@@ -33,7 +33,7 @@ RSpec.describe "Performance reviews", type: :request do
   end
 
   it "creates a review attributed to the current user" do
-    superadmin
+    admin
 
     expect do
       post "/api/v1/performance_reviews", params: params_for, headers: headers, as: :json
@@ -41,11 +41,11 @@ RSpec.describe "Performance reviews", type: :request do
 
     expect(response).to have_http_status(:created)
     expect(response_body.dig("data", "rating")).to eq(4.5)
-    expect(response_body.dig("data", "reviewer_id")).to eq(superadmin.id)
+    expect(response_body.dig("data", "reviewer_id")).to eq(admin.id)
   end
 
   it "lists reviews for a user" do
-    superadmin
+    admin
     ActsAsTenant.with_tenant(organization) do
       PerformanceReview.create!(user: employee, status: "draft", rating: 3)
     end
@@ -58,7 +58,7 @@ RSpec.describe "Performance reviews", type: :request do
   end
 
   it "filters by status" do
-    superadmin
+    admin
     ActsAsTenant.with_tenant(organization) do
       PerformanceReview.create!(user: employee, status: "draft")
       PerformanceReview.create!(user: employee, status: "acknowledged")
@@ -71,7 +71,7 @@ RSpec.describe "Performance reviews", type: :request do
   end
 
   it "updates a review" do
-    superadmin
+    admin
     review = ActsAsTenant.with_tenant(organization) do
       PerformanceReview.create!(user: employee, status: "draft")
     end
@@ -87,7 +87,7 @@ RSpec.describe "Performance reviews", type: :request do
   end
 
   it "rejects an inverted period" do
-    superadmin
+    admin
 
     post "/api/v1/performance_reviews",
          params: params_for(period_end: "2025-01-01"),
@@ -99,7 +99,7 @@ RSpec.describe "Performance reviews", type: :request do
   end
 
   it "deletes a review" do
-    superadmin
+    admin
     review = ActsAsTenant.with_tenant(organization) do
       PerformanceReview.create!(user: employee, status: "draft")
     end
@@ -109,7 +109,7 @@ RSpec.describe "Performance reviews", type: :request do
     end.to change(PerformanceReview, :count).by(-1)
   end
 
-  it "forbids non-superadmins" do
+  it "forbids non-admins" do
     get "/api/v1/performance_reviews", headers: auth_headers(member), as: :json
 
     expect(response).to have_http_status(:forbidden)

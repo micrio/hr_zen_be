@@ -3,7 +3,7 @@
 module Api
   module V1
     class OrganizationSerializer < ActiveModel::Serializer
-      attributes :id, :uuid, :name, :email, :phone, :subdomain, :status, :created_at
+      attributes :id, :uuid, :name, :email, :phone, :subdomain, :plan, :status, :created_at
     end
   end
 end

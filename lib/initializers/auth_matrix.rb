@@ -32,7 +32,7 @@ module AuthMatrix
     }.freeze
 
     # System-wide roles provisioned for each individual workspace.
-    DEFAULT_ROLES = %w[superadmin hr_manager leave_approver employee].freeze
+    DEFAULT_ROLES = %w[admin hr_manager leave_approver employee].freeze
 
     # Builds the full RBAC/ABAC grid for a tenant.
     def self.setup_workspace!(organization)
@@ -69,7 +69,7 @@ module AuthMatrix
       owner = organization.owner
       return if owner.blank?
 
-      owner.user_roles.find_or_create_by!(role: roles["superadmin"])
+      owner.user_roles.find_or_create_by!(role: roles["admin"])
     end
 
     def self.apply_tenant_rules(roles, record_types)

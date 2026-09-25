@@ -7,19 +7,19 @@ RSpec.describe "Face registration", type: :request do
 
   before { AuthMatrix::Initializer.setup_workspace!(organization) }
 
-  let(:superadmin) do
+  let(:admin) do
     create(:user, organization: organization).tap do |user|
-      ActsAsTenant.with_tenant(organization) { user.assign_role("superadmin") }
+      ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
     end
   end
   let(:member) { create(:user, organization: organization) }
   let(:embedding) { Array.new(128) { 0.1 } }
 
   describe "POST /api/v1/users/:user_id/face" do
-    it "lets a superadmin register a face for an employee" do
+    it "lets a admin register a face for an employee" do
       post "/api/v1/users/#{member.id}/face",
            params: { face: { embedding: embedding } },
-           headers: auth_headers(superadmin),
+           headers: auth_headers(admin),
            as: :json
 
       expect(response).to have_http_status(:created)
@@ -37,7 +37,7 @@ RSpec.describe "Face registration", type: :request do
     end
 
     it "forbids registering a face for someone else" do
-      post "/api/v1/users/#{superadmin.id}/face",
+      post "/api/v1/users/#{admin.id}/face",
            params: { face: { embedding: embedding } },
            headers: auth_headers(member),
            as: :json
@@ -48,7 +48,7 @@ RSpec.describe "Face registration", type: :request do
     it "rejects an invalid embedding" do
       post "/api/v1/users/#{member.id}/face",
            params: { face: { embedding: [ 0.1, 0.2 ] } },
-           headers: auth_headers(superadmin),
+           headers: auth_headers(admin),
            as: :json
 
       expect(response).to have_http_status(:unprocessable_entity)
@@ -70,7 +70,7 @@ RSpec.describe "Face registration", type: :request do
         member.face_embeddings.create!(vector: embedding)
       end
 
-      get "/api/v1/users/#{member.id}/face", headers: auth_headers(superadmin), as: :json
+      get "/api/v1/users/#{member.id}/face", headers: auth_headers(admin), as: :json
 
       expect(response).to have_http_status(:ok)
       expect(response_body.dig("data", "registered")).to be true
@@ -84,7 +84,7 @@ RSpec.describe "Face registration", type: :request do
       end
 
       expect do
-        delete "/api/v1/users/#{member.id}/face", headers: auth_headers(superadmin), as: :json
+        delete "/api/v1/users/#{member.id}/face", headers: auth_headers(admin), as: :json
       end.to change(FaceEmbedding, :count).by(-1)
 
       expect(response).to have_http_status(:ok)
