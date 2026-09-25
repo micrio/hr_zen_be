@@ -5,7 +5,7 @@ module Api
     class ActivitiesController < BaseController
       # GET /api/v1/activities?user_id=&item_type=&from=&to=
       def index
-        authorize :activity, :index?
+        authorize :activity, :index?, policy_class: ActivityPolicy
 
         versions = Api::V1::ListActivitiesService.new(
           organization: current_user.organization,
