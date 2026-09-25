@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+
 class PermissionRule < ApplicationRecord
+  has_paper_trail meta: { organization_id: :organization_id }
   # Every boolean capability a rule can grant.
   ACTIONS = %i[
     can_read

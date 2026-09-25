@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+
 class LeaveBalance < ApplicationRecord
+  has_paper_trail meta: { organization_id: :organization_id }
   acts_as_tenant :organization
 
   belongs_to :user

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000017) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000018) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -267,6 +267,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000017) do
     t.index ["organization_id"], name: "index_users_on_organization_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["uuid", "provider"], name: "index_users_on_uuid_and_provider", unique: true
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.string "item_type", null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.text "object_changes"
+    t.datetime "created_at"
+    t.bigint "organization_id"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+    t.index ["organization_id", "created_at"], name: "index_versions_on_organization_id_and_created_at"
+    t.index ["organization_id"], name: "index_versions_on_organization_id"
   end
 
   add_foreign_key "addresses", "organizations"

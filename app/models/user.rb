@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+
 class User < ApplicationRecord
+  has_paper_trail meta: { organization_id: :organization_id }
   acts_as_tenant :organization
 
   devise :database_authenticatable, :registerable,

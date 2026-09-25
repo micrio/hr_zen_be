@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+
 class LeaveApplication < ApplicationRecord
+  has_paper_trail meta: { organization_id: :organization_id }
   STATUSES = %w[pending approved rejected cancelled].freeze
 
   acts_as_tenant :organization

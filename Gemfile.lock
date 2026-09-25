@@ -228,6 +228,9 @@ GEM
     nokogiri (1.19.4-x86_64-linux-musl)
       racc (~> 1.4)
     orm_adapter (0.5.0)
+    paper_trail (17.0.0)
+      activerecord (>= 7.1)
+      request_store (~> 1.4)
     parallel (2.2.0)
     paranoia (3.1.0)
       activerecord (>= 7, < 8.2)
@@ -320,6 +323,8 @@ GEM
     regexp_parser (2.13.0)
     reline (0.7.0)
       io-console (~> 0.5)
+    request_store (1.7.0)
+      rack (>= 1.4)
     responders (3.2.1)
       actionpack (>= 7.0)
       railties (>= 7.0)
@@ -447,6 +452,7 @@ DEPENDENCIES
   json (~> 2.7)
   kaminari-activerecord (~> 1.2)
   letter_opener
+  paper_trail
   paranoia
   pdf-reader (~> 2.13)
   pg (~> 1.1)

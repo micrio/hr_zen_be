@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+
 class AttendanceEvent < ApplicationRecord
+  has_paper_trail meta: { organization_id: :organization_id }
   KINDS = %w[clock_in clock_out].freeze
 
   acts_as_tenant :organization

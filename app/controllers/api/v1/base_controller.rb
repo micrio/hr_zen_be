@@ -12,9 +12,15 @@ module Api
       include RescueExceptions
       include Secured
 
+      before_action :set_paper_trail_whodunnit
       around_action :with_current_tenant
 
       private
+
+      # Attribute paper_trail versions to the acting user.
+      def set_paper_trail_whodunnit
+        PaperTrail.request.whodunnit = current_user&.id&.to_s
+      end
 
       # Scope every authenticated request to the user's organization.
       def with_current_tenant(&block)

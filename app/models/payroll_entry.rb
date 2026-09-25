@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+
 class PayrollEntry < ApplicationRecord
+  has_paper_trail meta: { organization_id: :organization_id }
   SALARY_TYPES = %w[hourly daily monthly].freeze
 
   acts_as_tenant :organization

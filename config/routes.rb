@@ -25,6 +25,8 @@ Rails.application.routes.draw do
         resource :face, only: %i[show create destroy], controller: "face_embeddings"
       end
 
+      get "activities", to: "activities#index"
+
       post "attendance/clock", to: "attendance#clock"
       get "attendance/events", to: "attendance_events#index"
       get "attendance/setting", to: "attendance_settings#show"

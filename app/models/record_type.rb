@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+
 class RecordType < ApplicationRecord
+  has_paper_trail meta: { organization_id: :organization_id }
   acts_as_tenant :organization
 
   has_many :permission_rules, dependent: :destroy

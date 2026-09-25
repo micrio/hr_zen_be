@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+
 class LeaveType < ApplicationRecord
+  has_paper_trail meta: { organization_id: :organization_id }
   acts_as_tenant :organization
 
   has_many :leave_balances, dependent: :destroy

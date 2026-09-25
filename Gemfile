@@ -18,6 +18,7 @@ gem "devise", "~> 4.9"
 gem "devise-jwt"
 gem "pundit"
 gem "paranoia"
+gem "paper_trail"
 gem "phonelib"
 gem "devise_invitable"
 
