@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000019) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -180,6 +180,26 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000019) do
     t.index ["organization_id"], name: "index_payroll_settings_on_organization_id", unique: true
   end
 
+  create_table "performance_reviews", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "reviewer_id"
+    t.date "period_start"
+    t.date "period_end"
+    t.date "review_date"
+    t.decimal "rating", precision: 3, scale: 2
+    t.string "status", default: "draft", null: false
+    t.text "summary"
+    t.text "strengths"
+    t.text "improvements"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "user_id", "review_date"], name: "idx_on_organization_id_user_id_review_date_3d72f56ea4"
+    t.index ["organization_id"], name: "index_performance_reviews_on_organization_id"
+    t.index ["reviewer_id"], name: "index_performance_reviews_on_reviewer_id"
+    t.index ["user_id"], name: "index_performance_reviews_on_user_id"
+  end
+
   create_table "permission_rules", force: :cascade do |t|
     t.bigint "organization_id", null: false
     t.bigint "role_id", null: false
@@ -314,6 +334,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000019) do
   add_foreign_key "payroll_entries", "organizations"
   add_foreign_key "payroll_entries", "users"
   add_foreign_key "payroll_settings", "organizations"
+  add_foreign_key "performance_reviews", "organizations"
+  add_foreign_key "performance_reviews", "users"
+  add_foreign_key "performance_reviews", "users", column: "reviewer_id"
   add_foreign_key "permission_rules", "organizations"
   add_foreign_key "permission_rules", "record_types"
   add_foreign_key "permission_rules", "roles"
