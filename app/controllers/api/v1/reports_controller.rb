@@ -15,6 +15,18 @@ module Api
 
         render_jsonapi(summary)
       end
+
+      # GET /api/v1/reports/:kind  (attendance | leaves | payroll | headcount)
+      def show
+        render_jsonapi(
+          Api::V1::ReportRowsService.new(
+            organization: current_user.organization,
+            kind: params[:kind],
+            from: params[:from],
+            to: params[:to]
+          ).perform
+        )
+      end
     end
   end
 end

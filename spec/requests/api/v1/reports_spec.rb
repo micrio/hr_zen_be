@@ -42,6 +42,34 @@ RSpec.describe "GET /api/v1/reports/summary", type: :request do
     end
   end
 
+  context "report rows" do
+    let(:organization) { create(:organization, plan: "enterprise") }
+    let(:admin) do
+      create(:user, organization: organization).tap do |user|
+        ActsAsTenant.with_tenant(organization) { user.assign_role("admin") }
+      end
+    end
+
+    before { AuthMatrix::Initializer.setup_workspace!(organization) }
+
+    %w[attendance leaves payroll headcount].each do |kind|
+      it "returns #{kind} columns and rows" do
+        get "/api/v1/reports/#{kind}", headers: auth_headers(admin), as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(response_body.dig("data", "report")).to eq(kind)
+        expect(response_body.dig("data", "columns")).to be_an(Array)
+        expect(response_body.dig("data", "rows")).to be_an(Array)
+      end
+    end
+
+    it "404s for an unknown report" do
+      get "/api/v1/reports/nope", headers: auth_headers(admin), as: :json
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   context "free plan" do
     let(:organization) { create(:organization, plan: "free") }
     let(:admin) do
