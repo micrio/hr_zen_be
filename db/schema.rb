@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_25_000023) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_25_000024) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -54,6 +54,30 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000023) do
     t.datetime "updated_at", null: false
     t.index ["clock_token"], name: "index_attendance_settings_on_clock_token", unique: true
     t.index ["organization_id"], name: "index_attendance_settings_on_organization_id", unique: true
+  end
+
+  create_table "chat_messages", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "chat_id", null: false
+    t.string "role", null: false
+    t.text "content"
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_id", "created_at"], name: "index_chat_messages_on_chat_id_and_created_at"
+    t.index ["chat_id"], name: "index_chat_messages_on_chat_id"
+    t.index ["organization_id"], name: "index_chat_messages_on_organization_id"
+  end
+
+  create_table "chats", force: :cascade do |t|
+    t.bigint "organization_id", null: false
+    t.bigint "user_id", null: false
+    t.string "title", default: "New chat", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "user_id", "updated_at"], name: "index_chats_on_organization_id_and_user_id_and_updated_at"
+    t.index ["organization_id"], name: "index_chats_on_organization_id"
+    t.index ["user_id"], name: "index_chats_on_user_id"
   end
 
   create_table "compensations", force: :cascade do |t|
@@ -377,6 +401,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_25_000023) do
   add_foreign_key "attendance_events", "organizations"
   add_foreign_key "attendance_events", "users"
   add_foreign_key "attendance_settings", "organizations"
+  add_foreign_key "chat_messages", "chats"
+  add_foreign_key "chat_messages", "organizations"
+  add_foreign_key "chats", "organizations"
+  add_foreign_key "chats", "users"
   add_foreign_key "compensations", "organizations"
   add_foreign_key "compensations", "users"
   add_foreign_key "face_embeddings", "organizations"

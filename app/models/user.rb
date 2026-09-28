@@ -18,6 +18,7 @@ class User < ApplicationRecord
   has_many :leave_applications, dependent: :destroy
   has_many :compensations, dependent: :destroy
   has_many :performance_reviews, dependent: :destroy
+  has_many :chats, dependent: :destroy
   has_many :team_members, dependent: :destroy
   has_many :teams, through: :team_members
   has_many :led_teams, class_name: "Team", foreign_key: :lead_id, dependent: :nullify, inverse_of: :lead

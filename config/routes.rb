@@ -48,6 +48,10 @@ Rails.application.routes.draw do
 
       resources :holidays, only: %i[index create update destroy]
       resources :performance_reviews, only: %i[index create update destroy]
+
+      resources :chats, only: %i[index show create destroy] do
+        resources :messages, only: %i[create], controller: "chat_messages"
+      end
       resources :organizations, only: %i[index update]
       resources :teams, only: %i[index create update destroy]
       resources :projects, only: %i[index create update destroy]
