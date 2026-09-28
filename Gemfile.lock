@@ -80,7 +80,7 @@ GEM
       minitest (>= 5.1, < 6)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
-    acts_as_tenant (1.0.1)
+    acts_as_tenant (2.0.0)
       rails (>= 6.0)
     addressable (2.9.0)
       public_suffix (>= 2.0.2, < 8.0)
@@ -463,7 +463,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.10.14)
-  acts_as_tenant (~> 1.0)
+  acts_as_tenant (~> 2.0)
   bootsnap
   brakeman
   bullet
