@@ -6,7 +6,8 @@ module Api
       # Thin wrapper around RubyLLM: builds the chat, registers the tools and
       # returns the reply plus the entity references the tools collected.
       class Engine
-        DEFAULT_MODEL = "gpt-4o-mini"
+        DEFAULT_PROVIDER = "deepseek"
+        DEFAULT_MODEL = "deepseek-chat"
         HISTORY_LIMIT = 20
 
         TOOLS = [
@@ -28,7 +29,7 @@ module Api
 
           references = Context.with(organization: organization, user: user) do
             References.collect do
-              chat = RubyLLM.chat(model: self.class.model)
+              chat = build_chat
               chat.with_instructions(system_prompt)
 
               history.last(HISTORY_LIMIT).each do |message|
@@ -45,6 +46,10 @@ module Api
           { content: reply_content.to_s, references: references }
         end
 
+        def self.provider
+          ENV.fetch("ASSISTANT_PROVIDER", DEFAULT_PROVIDER)
+        end
+
         def self.model
           ENV.fetch("ASSISTANT_MODEL", DEFAULT_MODEL)
         end
@@ -53,9 +58,19 @@ module Api
 
         attr_reader :organization, :user
 
+        def build_chat
+          options = { model: self.class.model, provider: self.class.provider.to_sym }
+
+          # Allow provider-specific model names that aren't in RubyLLM's registry
+          # (e.g. DeepSeek's `deepseek-chat`).
+          options[:assume_model_exists] = true
+
+          RubyLLM.chat(**options)
+        end
+
         def ensure_configured!
           configured = ENV.values_at(
-            "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "OLLAMA_API_BASE"
+            "DEEPSEEK_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "OLLAMA_API_BASE"
           ).any?(&:present?)
 
           return if configured
@@ -63,7 +78,7 @@ module Api
           raise Api::Error::UnprocessableEntity.new(
             "Assistant is not configured",
             details: {
-              base: [ "Set OPENAI_API_KEY (or ANTHROPIC_API_KEY / OLLAMA_API_BASE)." ]
+              base: [ "Set DEEPSEEK_API_KEY in the backend .env (or OPENAI_API_KEY / ANTHROPIC_API_KEY / OLLAMA_API_BASE)." ]
             }
           )
         end
