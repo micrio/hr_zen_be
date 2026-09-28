@@ -40,6 +40,23 @@ RSpec.describe "Assistant chats", type: :request do
       end.to change(Chat, :count).by(-1)
     end
 
+    it "shows a plain-text preview (markdown stripped) in the list" do
+      chat = ActsAsTenant.with_tenant(organization) { admin.chats.create!(title: "Preview") }
+      ActsAsTenant.with_tenant(organization) do
+        chat.chat_messages.create!(
+          role: "assistant",
+          content: "Here are 3 employees:\n\n- **Jake Ryan** — jake@su.edu\n- **Jasper** — jasper@user.com"
+        )
+      end
+
+      get "/api/v1/chats", headers: headers, as: :json
+
+      preview = response_body["data"].find { |row| row["id"] == chat.id }["last_message"]
+      expect(preview).to include("Jake Ryan")
+      expect(preview).not_to include("**")
+      expect(preview).not_to include("\n")
+    end
+
     it "scopes chats to the current user" do
       other = ActsAsTenant.with_tenant(organization) { create(:user) }
       other_chat = ActsAsTenant.with_tenant(organization) { other.chats.create! }

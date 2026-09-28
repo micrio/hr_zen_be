@@ -12,7 +12,9 @@ module Api
       end
 
       def last_message
-        object.chat_messages.max_by(&:created_at)&.content&.first(80)
+        Api::V1::Assistant::Preview.plain(
+          object.chat_messages.max_by(&:created_at)&.content
+        )
       end
     end
   end
