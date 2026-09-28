@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe Api::V1::Assistant::Engine do
   around do |example|
-    keys = %w[DEEPSEEK_API_KEY OPENAI_API_KEY ANTHROPIC_API_KEY OLLAMA_API_BASE]
+    keys = %w[DEEPSEEK_API_KEY]
     saved = keys.index_with { |key| ENV[key] }
     keys.each { |key| ENV.delete(key) }
 
@@ -14,18 +14,15 @@ RSpec.describe Api::V1::Assistant::Engine do
   end
 
   it "defaults to the DeepSeek provider and model" do
-    expect(described_class.provider).to eq("deepseek")
+    expect(described_class.provider).to eq(:deepseek)
     expect(described_class.model).to eq("deepseek-chat")
   end
 
-  it "reads the model/provider from ENV" do
-    ENV["ASSISTANT_PROVIDER"] = "openai"
-    ENV["ASSISTANT_MODEL"] = "gpt-4o-mini"
+  it "reads the model from ENV" do
+    ENV["ASSISTANT_MODEL"] = "deepseek-reasoner"
 
-    expect(described_class.provider).to eq("openai")
-    expect(described_class.model).to eq("gpt-4o-mini")
+    expect(described_class.model).to eq("deepseek-reasoner")
   ensure
-    ENV.delete("ASSISTANT_PROVIDER")
     ENV.delete("ASSISTANT_MODEL")
   end
 

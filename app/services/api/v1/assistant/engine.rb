@@ -6,12 +6,13 @@ module Api
       # Thin wrapper around RubyLLM: builds the chat, registers the tools and
       # returns the reply plus the entity references the tools collected.
       class Engine
-        DEFAULT_PROVIDER = "deepseek"
+        PROVIDER = :deepseek
         DEFAULT_MODEL = "deepseek-chat"
         HISTORY_LIMIT = 20
 
         TOOLS = [
           Tools::FindUsers,
+          Tools::CountUsers,
           Tools::UsersWithoutPayroll,
           Tools::ListTasks,
           Tools::MoveTask
@@ -47,7 +48,7 @@ module Api
         end
 
         def self.provider
-          ENV.fetch("ASSISTANT_PROVIDER", DEFAULT_PROVIDER)
+          PROVIDER
         end
 
         def self.model
@@ -69,17 +70,11 @@ module Api
         end
 
         def ensure_configured!
-          configured = ENV.values_at(
-            "DEEPSEEK_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "OLLAMA_API_BASE"
-          ).any?(&:present?)
-
-          return if configured
+          return if ENV["DEEPSEEK_API_KEY"].present?
 
           raise Api::Error::UnprocessableEntity.new(
             "Assistant is not configured",
-            details: {
-              base: [ "Set DEEPSEEK_API_KEY in the backend .env (or OPENAI_API_KEY / ANTHROPIC_API_KEY / OLLAMA_API_BASE)." ]
-            }
+            details: { base: [ "Set DEEPSEEK_API_KEY in the backend .env." ] }
           )
         end
 

@@ -41,6 +41,24 @@ RSpec.describe "Assistant tools" do
     end
   end
 
+  describe Api::V1::Assistant::Tools::CountUsers do
+    it "counts users by confirmation status" do
+      ActsAsTenant.with_tenant(organization) do
+        unconfirmed = build(:user, :unconfirmed, first_name: "Pending")
+        unconfirmed.skip_confirmation_notification!
+        unconfirmed.save!
+      end
+
+      total, = run(described_class)
+      unconfirmed_count, = run(described_class, confirmed: false)
+      confirmed_count, = run(described_class, confirmed: true)
+
+      expect(total[:total]).to eq(2)
+      expect(unconfirmed_count[:total]).to eq(1)
+      expect(confirmed_count[:total]).to eq(1)
+    end
+  end
+
   describe Api::V1::Assistant::Tools::UsersWithoutPayroll do
     it "returns employees with no payroll entry in the range" do
       ActsAsTenant.with_tenant(organization) do
