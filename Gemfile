@@ -24,7 +24,7 @@ gem "phonelib"
 gem "devise_invitable"
 
 # Query / pagination / counters
-gem "ransack", "~> 4.2"
+gem "ransack", "~> 5.0"
 gem "kaminari-activerecord", "~> 1.2"
 gem "counter_culture", "~> 3.2"
 
