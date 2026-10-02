@@ -13,7 +13,7 @@ gem "json", "~> 2.7"
 gem "active_model_serializers", "~> 0.10.14"
 
 # Domain / multi-tenancy / auth
-gem "acts_as_tenant", "~> 1.0"
+gem "acts_as_tenant", "~> 2.0"
 gem "devise", "~> 4.9"
 gem "devise-jwt"
 gem "pundit"
