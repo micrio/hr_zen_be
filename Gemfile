@@ -14,7 +14,7 @@ gem "active_model_serializers", "~> 0.10.14"
 
 # Domain / multi-tenancy / auth
 gem "acts_as_tenant", "~> 1.0"
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 gem "devise-jwt"
 gem "pundit"
 gem "ruby_llm"
